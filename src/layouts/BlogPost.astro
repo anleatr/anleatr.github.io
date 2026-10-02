@@ -15,8 +15,8 @@ const { title, description, pubDate, updatedDate, headings } = Astro.props;
 	<head><BaseHead title={`${title} · Asera`} description={description} /></head>
 	<body>
 		<Header />
-		<main>
-			<article class="narrow article" class:list={{ 'has-toc': headings.length > 0 }}>
+		<main class="shell page-grid article-grid" class:list={{ 'has-toc': headings.length > 0 }}>
+			<article class="card article">
 				<header class="article-header">
 					<a class="back" href="/blog">← Blog</a>
 					<h1>{title}</h1>
@@ -26,29 +26,23 @@ const { title, description, pubDate, updatedDate, headings } = Astro.props;
 						{updatedDate && <span> · Updated <FormattedDate date={updatedDate} /></span>}
 					</div>
 				</header>
-				<div class="article-content">
-					{headings.length > 0 && <TableOfContents headings={headings} />}
-					<div class="prose"><slot /></div>
-				</div>
+				<div class="prose"><slot /></div>
 			</article>
+			{headings.length > 0 && <TableOfContents headings={headings} />}
 		</main>
 	</body>
 </html>
 
 <style>
-	.article { padding: 6rem 0 3rem; }
-	.article-header { margin-bottom: 4rem; padding-bottom: 2.5rem; border-bottom: 1px solid var(--line); }
+	.article-grid { grid-template-columns: minmax(0, 1fr); }
+	.article-header { margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--line); }
 	.back { color: var(--accent-soft); font-size: 0.85rem; text-decoration: none; }
-	.article-header h1 { margin-top: 2rem; font-size: clamp(2.7rem, 7vw, 5rem); letter-spacing: -0.035em; }
-	.description { max-width: 610px; margin-top: 1.25rem; color: var(--muted); font-size: 1.08rem; }
-	.date { margin-top: 1.5rem; color: var(--muted); font-size: 0.82rem; }
-	.article-content { position: relative; }
+	.article-header h1 { margin-top: 0.75rem; font-size: clamp(1.6rem, 2.5vw, 2.25rem); letter-spacing: -0.025em; overflow-wrap: anywhere; }
+	.description { margin: 0.75rem 0 0; color: var(--muted); font-size: 1rem; }
+	.date { margin-top: 0.75rem; color: var(--muted); font-size: 0.82rem; }
 	.prose { min-width: 0; }
 	.prose :global(:is(h1, h2, h3, h4, h5, h6)[id]) { scroll-margin-top: 140px; }
-	@media (min-width: 1100px) {
-		.has-toc { width: min(1040px, calc(100% - 4rem)); }
-		.has-toc .article-header { max-width: 720px; }
-		.has-toc .article-content { display: grid; grid-template-columns: minmax(0, 720px) 260px; gap: 3.5rem; align-items: start; }
-		.has-toc .prose { grid-column: 1; grid-row: 1; }
+	@media (min-width: 768px) {
+		.article-grid.has-toc { grid-template-columns: minmax(0, 1fr) var(--sidebar-width); }
 	}
 </style>

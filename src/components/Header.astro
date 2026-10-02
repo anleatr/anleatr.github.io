@@ -30,8 +30,8 @@ import HeaderLink from './HeaderLink.astro';
 	}
 	nav {
 		display: flex;
-		width: min(1120px, calc(100% - 2rem));
-		min-height: 76px;
+		width: min(var(--page-width), calc(100% - 2rem));
+		min-height: 72px;
 		margin: 0 auto;
 		align-items: center;
 		justify-content: space-between;
@@ -69,6 +69,7 @@ import HeaderLink from './HeaderLink.astro';
 		text-decoration: none;
 	}
 	.github-link:hover { color: var(--text); }
+	@media (min-width: 1280px) { nav { width: min(var(--page-width), 92vw); } }
 	@media (max-width: 760px) {
 		nav {
 			min-height: auto;

@@ -18,7 +18,7 @@ const posts = (await getCollection('blog'))
 	<body>
 		<Header />
 		<main>
-			<section class="hero shell">
+			<section class="hero shell card">
 				<div class="portrait">
 					<Image src={Avatar} alt="Asera" width={512} height={512} loading="eager" />
 					<!-- <p>Asera</p> -->
@@ -28,7 +28,7 @@ const posts = (await getCollection('blog'))
 				</div>
 			</section>
 
-			<section class="latest shell">
+			<section class="latest shell card">
 				<div class="section-heading">
 					<h2>Latest writing</h2>
 					<a class="text-link" href="/blog">All posts →</a>
@@ -50,12 +50,12 @@ const posts = (await getCollection('blog'))
 </html>
 
 <style>
-	.hero { display: grid; min-height: 620px; padding: 6rem 0; grid-template-columns: 3fr 7fr; gap: clamp(3rem, 8vw, 7rem); align-items: center; }
+	.hero { display: grid; margin-top: 1rem; min-height: 300px; grid-template-columns: minmax(0, 3fr) minmax(0, 7fr); gap: 1rem; align-items: center; }
 	.portrait { width: min(100%, 220px); justify-self: center; }
 	.portrait img { display: block; width: 100%; aspect-ratio: 1; border: 1px solid var(--line); border-radius: 1.25rem; object-fit: cover; box-shadow: 0 24px 70px rgba(0, 0, 0, 0.28); }
 	.portrait p { width: 100%; margin: 1.15rem 0 0; color: var(--text); font-family: var(--font-display); font-size: 1.35rem; text-align: center; }
 	.introduction h1 { font-family: var(--font-body); font-size: 1rem; font-weight: 400; line-height: 1.75; letter-spacing: 0; }
-	.latest { padding: 4rem 0; }
+	.latest { margin-top: 1rem; margin-bottom: 2rem; }
 	.paths { display: grid; padding: 4rem 0 2rem; grid-template-columns: 1fr 1fr; gap: 1rem; }
 	.paths a { padding: 2rem; border: 1px solid var(--line); border-radius: 1rem; background: var(--surface); text-decoration: none; transition: border-color 160ms ease, transform 160ms ease; }
 	.paths a:hover { border-color: rgba(213, 96, 66, 0.55); transform: translateY(-3px); }
@@ -63,7 +63,7 @@ const posts = (await getCollection('blog'))
 	.paths h2 { margin: 2.5rem 0 0.55rem; font-size: 2rem; }
 	.paths p { margin: 0; color: var(--muted); font-size: 0.95rem; }
 	@media (max-width: 760px) {
-		.hero { min-height: auto; padding: 4rem 0; grid-template-columns: 1fr; gap: 2.75rem; }
+		.hero { min-height: auto; padding: 1.5rem; grid-template-columns: 1fr; gap: 1.5rem; }
 		.portrait { width: min(100%, 200px); justify-self: center; }
 		.paths { grid-template-columns: 1fr; }
 	}

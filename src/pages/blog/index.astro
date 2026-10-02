@@ -14,8 +14,8 @@ const posts = (await getCollection('blog')).sort(
 	<head><BaseHead title="Blog · Asera" description="Notes on research, technology, and ideas in progress." /></head>
 	<body>
 		<Header />
-		<main class="shell">
-			<section class="archive" aria-label="Blog archive">
+		<main class="shell page-grid blog-grid">
+			<section class="archive card" aria-label="Blog archive">
 				<div class="section-heading"><h2>All writing</h2></div>
 				<ul class="post-list">
 					{posts.map((post) => (
@@ -32,4 +32,6 @@ const posts = (await getCollection('blog')).sort(
 	</body>
 </html>
 
-<style>.archive { padding: 6rem 0 5rem; }</style>
+<style>
+	.blog-grid { grid-template-columns: minmax(0, 1fr); }
+</style>

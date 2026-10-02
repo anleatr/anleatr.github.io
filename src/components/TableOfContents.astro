@@ -4,6 +4,11 @@ import type { MarkdownHeading } from 'astro';
 interface Props { headings: MarkdownHeading[] }
 const { headings } = Astro.props;
 const minDepth = Math.min(...headings.map((heading) => heading.depth));
+let sectionNumber = 0;
+const items = headings.map((heading) => ({
+	...heading,
+	marker: heading.depth === minDepth ? String(++sectionNumber) : '•',
+}));
 ---
 
 <aside class="toc" aria-label="文章目录">
@@ -11,9 +16,12 @@ const minDepth = Math.min(...headings.map((heading) => heading.depth));
 	<button class="toc-toggle" type="button" aria-expanded="false" aria-controls="article-toc-links">文章目录 <span aria-hidden="true">⌄</span></button>
 	<nav id="article-toc-links" aria-label="文章章节">
 		<ol>
-			{headings.map((heading) => (
+			{items.map((heading) => (
 				<li style={`--depth: ${heading.depth - minDepth}`}>
-					<a href={`#${heading.slug}`} data-heading-id={heading.slug}>{heading.text}</a>
+					<a href={`#${heading.slug}`} data-heading-id={heading.slug}>
+						<span class="marker" aria-hidden="true">{heading.marker}</span>
+						<span>{heading.text}</span>
+					</a>
 				</li>
 			))}
 		</ol>
@@ -21,21 +29,22 @@ const minDepth = Math.min(...headings.map((heading) => heading.depth));
 </aside>
 
 <style>
-	.toc { margin-bottom: 2rem; padding: 1rem; border: 1px solid var(--line); border-radius: 0.8rem; background: var(--surface); }
-	.toc-title { display: none; margin-bottom: 0.75rem; color: var(--text); font-weight: 600; font-size: 0.9rem; }
+	.toc { order: -1; padding: 1rem; border: 1px solid var(--line); border-radius: var(--card-radius); background: var(--surface); }
+	.toc-title { display: none; margin-bottom: 0.75rem; padding-left: 0.75rem; border-left: 3px solid var(--accent); color: var(--text); font-weight: 600; font-size: 1.05rem; }
 	.toc-toggle { display: flex; justify-content: space-between; width: 100%; padding: 0; border: 0; background: none; color: var(--text); font: inherit; font-size: 0.9rem; cursor: pointer; }
 	nav { display: none; max-height: min(60vh, 32rem); overflow-y: auto; }
 	.toc-toggle[aria-expanded="true"] + nav { display: block; margin-top: 0.75rem; }
 	ol { list-style: none; margin: 0; padding: 0; }
 	li { margin: 0.2rem 0; padding-left: calc(var(--depth) * 0.75rem); }
-	a { display: block; padding: 0.4rem 0.55rem; border-radius: 0.35rem; color: var(--muted); font-size: 0.82rem; line-height: 1.5; text-decoration: none; overflow-wrap: anywhere; }
+	a { display: flex; align-items: baseline; gap: 0.5rem; padding: 0.5rem; border-radius: 0.5rem; color: var(--muted); font-size: 0.875rem; line-height: 1.5; text-decoration: none; overflow-wrap: anywhere; }
+	.marker { flex: 0 0 1.25rem; text-align: center; color: var(--accent-soft); font-size: 0.8rem; }
 	a:hover { color: var(--text); }
 	a[aria-current="location"] { color: var(--accent-soft); background: color-mix(in srgb, var(--accent) 12%, transparent); }
-	@media (min-width: 1100px) {
-		.toc { position: sticky; top: 100px; grid-column: 2; grid-row: 1; margin: 0; }
+	@media (min-width: 768px) {
+		.toc { order: 0; position: sticky; top: 92px; }
 		.toc-title { display: block; }
 		.toc-toggle { display: none; }
-		nav { display: block; max-height: calc(100vh - 180px); }
+		nav { display: block; max-height: calc(100vh - 170px); scrollbar-width: thin; }
 	}
 </style>
 
