@@ -1,0 +1,76 @@
+---
+import type { MarkdownHeading } from 'astro';
+
+interface Props { headings: MarkdownHeading[] }
+const { headings } = Astro.props;
+const minDepth = Math.min(...headings.map((heading) => heading.depth));
+---
+
+<aside class="toc" aria-label="文章目录">
+	<div class="toc-title">文章目录</div>
+	<button class="toc-toggle" type="button" aria-expanded="false" aria-controls="article-toc-links">文章目录 <span aria-hidden="true">⌄</span></button>
+	<nav id="article-toc-links" aria-label="文章章节">
+		<ol>
+			{headings.map((heading) => (
+				<li style={`--depth: ${heading.depth - minDepth}`}>
+					<a href={`#${heading.slug}`} data-heading-id={heading.slug}>{heading.text}</a>
+				</li>
+			))}
+		</ol>
+	</nav>
+</aside>
+
+<style>
+	.toc { margin-bottom: 2rem; padding: 1rem; border: 1px solid var(--line); border-radius: 0.8rem; background: var(--surface); }
+	.toc-title { display: none; margin-bottom: 0.75rem; color: var(--text); font-weight: 600; font-size: 0.9rem; }
+	.toc-toggle { display: flex; justify-content: space-between; width: 100%; padding: 0; border: 0; background: none; color: var(--text); font: inherit; font-size: 0.9rem; cursor: pointer; }
+	nav { display: none; max-height: min(60vh, 32rem); overflow-y: auto; }
+	.toc-toggle[aria-expanded="true"] + nav { display: block; margin-top: 0.75rem; }
+	ol { list-style: none; margin: 0; padding: 0; }
+	li { margin: 0.2rem 0; padding-left: calc(var(--depth) * 0.75rem); }
+	a { display: block; padding: 0.4rem 0.55rem; border-radius: 0.35rem; color: var(--muted); font-size: 0.82rem; line-height: 1.5; text-decoration: none; overflow-wrap: anywhere; }
+	a:hover { color: var(--text); }
+	a[aria-current="location"] { color: var(--accent-soft); background: color-mix(in srgb, var(--accent) 12%, transparent); }
+	@media (min-width: 1100px) {
+		.toc { position: sticky; top: 100px; grid-column: 2; grid-row: 1; margin: 0; }
+		.toc-title { display: block; }
+		.toc-toggle { display: none; }
+		nav { display: block; max-height: calc(100vh - 180px); }
+	}
+</style>
+
+<script>
+	const toc = document.querySelector<HTMLElement>('.toc')!;
+	const toggle = toc.querySelector<HTMLButtonElement>('button')!;
+	const links = Array.from(toc.querySelectorAll<HTMLAnchorElement>('a[data-heading-id]'));
+	const headings = links.map((link) => document.getElementById(link.dataset.headingId!)!);
+	let current = -1;
+	let scheduled = false;
+
+	toggle.addEventListener('click', () => {
+		toggle.setAttribute('aria-expanded', String(toggle.getAttribute('aria-expanded') !== 'true'));
+	});
+
+	function updateCurrentHeading() {
+		scheduled = false;
+		let next = 0;
+		for (let index = 0; index < headings.length; index++) {
+			if (headings[index].getBoundingClientRect().top <= 145) next = index;
+			else break;
+		}
+		if (next === current) return;
+		if (current >= 0) links[current].removeAttribute('aria-current');
+		links[next].setAttribute('aria-current', 'location');
+		current = next;
+	}
+
+	window.addEventListener('scroll', () => {
+		if (!scheduled) {
+			scheduled = true;
+			requestAnimationFrame(updateCurrentHeading);
+		}
+	}, { passive: true });
+	window.addEventListener('resize', updateCurrentHeading);
+	window.addEventListener('load', updateCurrentHeading);
+	updateCurrentHeading();
+</script>
