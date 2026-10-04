@@ -1,8 +1,8 @@
 :root {
 	color-scheme: light;
-	--background: #ffffff;
-	--background-image: linear-gradient(to bottom, #f2c66d 0%, #fff4d9 52%, #ffffff 100%);
-	--surface: rgba(255, 255, 255, 0.82);
+	--background: #f1eee8;
+	--background-image: linear-gradient(to bottom, #f2c66d 0%, #f7edda 52%, #f1eee8 100%);
+	--surface: #faf7f0;
 	--surface-raised: #fff4d9;
 	--text: #302b24;
 	--muted: #716552;
