@@ -1,12 +1,13 @@
 :root {
-	--background: #090d18;
-	--surface: #111827;
-	--surface-raised: #151e30;
-	--text: #edf1f7;
-	--muted: #99a4b7;
-	--line: rgba(237, 241, 247, 0.11);
-	--accent: #d56042;
-	--accent-soft: #f1a083;
+	color-scheme: light;
+	--background: #ffffff;
+	--surface: rgba(255, 255, 255, 0.82);
+	--surface-raised: #fff4d9;
+	--text: #302b24;
+	--muted: #716552;
+	--line: rgba(100, 73, 30, 0.16);
+	--accent: #a65e0b;
+	--accent-soft: #92500a;
 	--font-display: Georgia, "Times New Roman", serif;
 	--font-body: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 	--page-width: 100rem;
@@ -19,10 +20,7 @@
 html { scroll-behavior: smooth; }
 body {
 	margin: 0;
-	background:
-		radial-gradient(circle at 80% -10%, rgba(213, 96, 66, 0.13), transparent 34rem),
-		radial-gradient(circle at 4% 24%, rgba(73, 89, 127, 0.12), transparent 26rem),
-		var(--background);
+	background: linear-gradient(to bottom, #f2c66d 0%, #fff4d9 52%, #ffffff 100%) top / 100% 100vh no-repeat, var(--background);
 	color: var(--text);
 	font-family: var(--font-body);
 	font-size: 16px;
@@ -99,7 +97,7 @@ p { margin: 0 0 1rem; }
 	background: var(--surface);
 	color: var(--muted);
 }
-.prose { color: #cbd2df; }
+.prose { color: var(--text); }
 .prose :is(h1, h2, h3, h4, h5, h6) { margin: 1.75rem 0 0.75rem; color: var(--text); overflow-wrap: anywhere; }
 .prose h1 { font-size: 1.8rem; }
 .prose h2 { font-size: 1.5rem; }
@@ -110,7 +108,7 @@ p { margin: 0 0 1rem; }
 .prose table { display: block; overflow-x: auto; max-width: 100%; }
 .prose a { color: var(--accent-soft); text-underline-offset: 0.2em; }
 .prose code { padding: 0.15rem 0.35rem; border-radius: 0.3rem; background: var(--surface-raised); }
-.prose pre { overflow-x: auto; padding: 1.25rem; border: 1px solid var(--line); border-radius: 0.8rem; background: #070a11; }
+.prose pre { overflow-x: auto; padding: 1.25rem; border: 1px solid var(--line); border-radius: 0.8rem; background: #070a11; color: #edf1f7; }
 .prose pre code { padding: 0; background: none; }
 .prose blockquote { margin: 2rem 0; padding-left: 1.25rem; border-left: 2px solid var(--accent); color: var(--muted); }
 .prose img { margin: 2rem 0; border-radius: 0.8rem; }

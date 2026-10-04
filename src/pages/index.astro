@@ -52,13 +52,13 @@ const posts = (await getCollection('blog'))
 <style>
 	.hero { display: grid; margin-top: 1rem; min-height: 300px; grid-template-columns: minmax(0, 3fr) minmax(0, 7fr); gap: 1rem; align-items: center; }
 	.portrait { width: min(100%, 220px); justify-self: center; }
-	.portrait img { display: block; width: 100%; aspect-ratio: 1; border: 1px solid var(--line); border-radius: 1.25rem; object-fit: cover; box-shadow: 0 24px 70px rgba(0, 0, 0, 0.28); }
+	.portrait img { display: block; width: 100%; aspect-ratio: 1; border: 1px solid var(--line); border-radius: 1.25rem; object-fit: cover; box-shadow: 0 24px 70px rgba(100, 73, 30, 0.12); }
 	.portrait p { width: 100%; margin: 1.15rem 0 0; color: var(--text); font-family: var(--font-display); font-size: 1.35rem; text-align: center; }
 	.introduction h1 { font-family: var(--font-body); font-size: 1rem; font-weight: 400; line-height: 1.75; letter-spacing: 0; }
 	.latest { margin-top: 1rem; margin-bottom: 2rem; }
 	.paths { display: grid; padding: 4rem 0 2rem; grid-template-columns: 1fr 1fr; gap: 1rem; }
 	.paths a { padding: 2rem; border: 1px solid var(--line); border-radius: 1rem; background: var(--surface); text-decoration: none; transition: border-color 160ms ease, transform 160ms ease; }
-	.paths a:hover { border-color: rgba(213, 96, 66, 0.55); transform: translateY(-3px); }
+	.paths a:hover { border-color: var(--accent); transform: translateY(-3px); }
 	.paths span { color: var(--accent-soft); font-size: 0.75rem; letter-spacing: 0.12em; }
 	.paths h2 { margin: 2.5rem 0 0.55rem; font-size: 2rem; }
 	.paths p { margin: 0; color: var(--muted); font-size: 0.95rem; }
