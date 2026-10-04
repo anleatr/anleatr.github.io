@@ -27,21 +27,39 @@ import HeaderLink from './HeaderLink.astro';
 
 <script>
 	document.addEventListener('astro:page-load', () => {
-	const themeToggle = document.querySelector<HTMLButtonElement>('.theme-toggle')!;
-	function updateThemeButton() {
-		const dark = document.documentElement.dataset.theme === 'dark';
-		const label = dark ? '切换到亮色主题' : '切换到暗色主题';
-		themeToggle.setAttribute('aria-label', label);
-		themeToggle.title = label;
-		themeToggle.setAttribute('aria-pressed', String(dark));
-	}
-	themeToggle.addEventListener('click', () => {
-		const theme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
-		document.documentElement.dataset.theme = theme;
-		localStorage.setItem('asera-theme', theme);
+		const header = document.querySelector<HTMLElement>('header')!;
+		const themeToggle = header.querySelector<HTMLButtonElement>('.theme-toggle')!;
+		function updateThemeButton() {
+			const dark = document.documentElement.dataset.theme === 'dark';
+			const label = dark ? '切换到亮色主题' : '切换到暗色主题';
+			themeToggle.setAttribute('aria-label', label);
+			themeToggle.title = label;
+			themeToggle.setAttribute('aria-pressed', String(dark));
+		}
+		themeToggle.addEventListener('click', () => {
+			const theme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+			document.documentElement.dataset.theme = theme;
+			localStorage.setItem('asera-theme', theme);
+			updateThemeButton();
+		});
 		updateThemeButton();
-	});
-	updateThemeButton();
+
+		if (location.pathname !== '/blog' && !location.pathname.startsWith('/blog/')) return;
+		const listeners = new AbortController();
+		let previousY = Math.max(0, window.scrollY);
+		window.addEventListener('scroll', () => {
+			const y = Math.max(0, window.scrollY);
+			if (y === previousY) return;
+			const hidden = y > header.offsetHeight && y > previousY && !header.querySelector(':focus-visible');
+			header.classList.toggle('is-hidden', hidden);
+			header.inert = Boolean(hidden);
+			previousY = y;
+		}, { passive: true, signal: listeners.signal });
+		document.addEventListener('astro:before-preparation', () => {
+			header.classList.remove('is-hidden');
+			header.inert = false;
+		}, { signal: listeners.signal });
+		document.addEventListener('astro:before-swap', () => listeners.abort(), { once: true });
 	});
 </script>
 
@@ -55,17 +73,23 @@ import HeaderLink from './HeaderLink.astro';
 	:global([data-theme="dark"]) .moon-icon { display: none; }
 	header {
 		position: sticky;
-		top: 0;
+		top: 0.75rem;
 		z-index: 20;
-		border-bottom: 1px solid var(--line);
-		background: var(--surface);
-		backdrop-filter: blur(18px);
+		width: min(var(--page-width), calc(100% - 2rem));
+		margin: 0.75rem auto 0;
+		border: 1px solid var(--line);
+		border-radius: var(--card-radius);
+		background: color-mix(in srgb, var(--surface) 72%, transparent);
+		backdrop-filter: blur(18px) saturate(120%);
+		box-shadow: 0 4px 20px color-mix(in srgb, var(--text) 5%, transparent);
+		transition: transform 200ms ease, opacity 200ms ease;
 	}
+	header.is-hidden { transform: translateY(calc(-100% - 1.5rem)); opacity: 0; pointer-events: none; }
 	nav {
 		display: flex;
-		width: min(var(--page-width), calc(100% - 2rem));
+		position: relative;
 		min-height: 72px;
-		margin: 0 auto;
+		padding: 0 1.5rem;
 		align-items: center;
 		justify-content: space-between;
 	}
@@ -102,11 +126,12 @@ import HeaderLink from './HeaderLink.astro';
 		text-decoration: none;
 	}
 	.github-link:hover { color: var(--text); }
-	@media (min-width: 1280px) { nav { width: min(var(--page-width), 92vw); } }
+	@media (min-width: 1280px) { header { width: min(var(--page-width), 92vw); } }
+	@media (prefers-reduced-motion: reduce) { header { transition: none; } }
 	@media (max-width: 760px) {
 		nav {
 			min-height: auto;
-			padding: 1rem 0 0.75rem;
+			padding: 0.75rem 1rem;
 			flex-wrap: wrap;
 			gap: 0.85rem;
 		}
