@@ -1,6 +1,7 @@
 :root {
 	color-scheme: light;
 	--background: #ffffff;
+	--background-image: linear-gradient(to bottom, #f2c66d 0%, #fff4d9 52%, #ffffff 100%);
 	--surface: rgba(255, 255, 255, 0.82);
 	--surface-raised: #fff4d9;
 	--text: #302b24;
@@ -16,11 +17,24 @@
 	--card-radius: 1rem;
 }
 
+:root[data-theme="dark"] {
+	color-scheme: dark;
+	--background: #090d18;
+	--background-image: radial-gradient(circle at 80% 0%, rgba(213, 96, 66, 0.13), transparent 34rem), radial-gradient(circle at 4% 24%, rgba(73, 89, 127, 0.12), transparent 26rem);
+	--surface: #111827;
+	--surface-raised: #151e30;
+	--text: #edf1f7;
+	--muted: #99a4b7;
+	--line: rgba(237, 241, 247, 0.11);
+	--accent: #d56042;
+	--accent-soft: #f1a083;
+}
+
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 body {
 	margin: 0;
-	background: linear-gradient(to bottom, #f2c66d 0%, #fff4d9 52%, #ffffff 100%) top / 100% 100vh no-repeat, var(--background);
+	background: var(--background-image) top / 100% 100vh no-repeat, var(--background);
 	color: var(--text);
 	font-family: var(--font-body);
 	font-size: 16px;
@@ -31,6 +45,20 @@ a { color: inherit; }
 a:focus-visible { outline: 2px solid var(--accent-soft); outline-offset: 4px; }
 img { display: block; max-width: 100%; height: auto; }
 main { min-height: calc(100vh - 100px); }
+main { view-transition-name: page-content; }
+::view-transition-old(root), ::view-transition-new(root) { animation: none; }
+::view-transition-group(page-content) { animation-duration: 240ms; }
+::view-transition-old(page-content) { animation: page-out 120ms ease-in both; }
+::view-transition-new(page-content) { animation: page-in 120ms ease-out 120ms both; }
+@keyframes page-out {
+	to { opacity: 0; transform: translateY(-1rem); }
+}
+@keyframes page-in {
+	from { opacity: 0; transform: translateY(1rem); }
+}
+@media (prefers-reduced-motion: reduce) {
+	::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
+}
 h1, h2, h3, h4 {
 	margin: 0;
 	font-family: var(--font-body);

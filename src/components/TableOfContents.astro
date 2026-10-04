@@ -49,7 +49,10 @@ const items = headings.map((heading) => ({
 </style>
 
 <script>
-	const toc = document.querySelector<HTMLElement>('.toc')!;
+	document.addEventListener('astro:page-load', () => {
+	const toc = document.querySelector<HTMLElement>('.toc');
+	if (!toc) return;
+	const listeners = new AbortController();
 	const toggle = toc.querySelector<HTMLButtonElement>('button')!;
 	const nav = toc.querySelector<HTMLElement>('nav')!;
 	const links = Array.from(toc.querySelectorAll<HTMLAnchorElement>('a[data-heading-id]'));
@@ -92,11 +95,12 @@ const items = headings.map((heading) => ({
 			scheduled = true;
 			requestAnimationFrame(updateCurrentHeading);
 		}
-	}, { passive: true });
+	}, { passive: true, signal: listeners.signal });
 	window.addEventListener('resize', () => {
 		updateCurrentHeading();
 		keepCurrentHeadingVisible();
-	});
-	window.addEventListener('load', updateCurrentHeading);
+	}, { signal: listeners.signal });
+	document.addEventListener('astro:before-swap', () => listeners.abort(), { once: true });
 	updateCurrentHeading();
+	});
 </script>
