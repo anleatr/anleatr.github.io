@@ -32,7 +32,7 @@ const items = headings.map((heading) => ({
 	.toc { order: -1; padding: 1rem; border: 1px solid var(--line); border-radius: var(--card-radius); background: var(--surface); }
 	.toc-title { display: none; margin-bottom: 0.75rem; padding-left: 0.75rem; border-left: 3px solid var(--accent); color: var(--text); font-weight: 600; font-size: 1.05rem; }
 	.toc-toggle { display: flex; justify-content: space-between; width: 100%; padding: 0; border: 0; background: none; color: var(--text); font: inherit; font-size: 0.9rem; cursor: pointer; }
-	nav { display: none; max-height: min(60vh, 32rem); overflow-y: auto; }
+	nav { display: none; max-height: min(60vh, 32rem); overflow-y: auto; overscroll-behavior: contain; }
 	.toc-toggle[aria-expanded="true"] + nav { display: block; margin-top: 0.75rem; }
 	ol { list-style: none; margin: 0; padding: 0; }
 	li { margin: 0.2rem 0; padding-left: calc(var(--depth) * 0.75rem); }
@@ -51,6 +51,7 @@ const items = headings.map((heading) => ({
 <script>
 	const toc = document.querySelector<HTMLElement>('.toc')!;
 	const toggle = toc.querySelector<HTMLButtonElement>('button')!;
+	const nav = toc.querySelector<HTMLElement>('nav')!;
 	const links = Array.from(toc.querySelectorAll<HTMLAnchorElement>('a[data-heading-id]'));
 	const headings = links.map((link) => document.getElementById(link.dataset.headingId!)!);
 	let current = -1;
@@ -58,7 +59,19 @@ const items = headings.map((heading) => ({
 
 	toggle.addEventListener('click', () => {
 		toggle.setAttribute('aria-expanded', String(toggle.getAttribute('aria-expanded') !== 'true'));
+		requestAnimationFrame(keepCurrentHeadingVisible);
 	});
+
+	function keepCurrentHeadingVisible() {
+		if (current < 0 || nav.clientHeight === 0) return;
+		const item = links[current].getBoundingClientRect();
+		const panel = nav.getBoundingClientRect();
+		if (item.top >= panel.top && item.bottom <= panel.bottom) return;
+		nav.scrollTo({
+			top: nav.scrollTop + item.top - panel.top - (nav.clientHeight - item.height) / 2,
+			behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth',
+		});
+	}
 
 	function updateCurrentHeading() {
 		scheduled = false;
@@ -71,6 +84,7 @@ const items = headings.map((heading) => ({
 		if (current >= 0) links[current].removeAttribute('aria-current');
 		links[next].setAttribute('aria-current', 'location');
 		current = next;
+		keepCurrentHeadingVisible();
 	}
 
 	window.addEventListener('scroll', () => {
@@ -79,7 +93,10 @@ const items = headings.map((heading) => ({
 			requestAnimationFrame(updateCurrentHeading);
 		}
 	}, { passive: true });
-	window.addEventListener('resize', updateCurrentHeading);
+	window.addEventListener('resize', () => {
+		updateCurrentHeading();
+		keepCurrentHeadingVisible();
+	});
 	window.addEventListener('load', updateCurrentHeading);
 	updateCurrentHeading();
 </script>
