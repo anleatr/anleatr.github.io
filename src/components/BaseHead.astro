@@ -22,6 +22,18 @@ const { title, description } = Astro.props;
 	document.documentElement.dataset.theme = localStorage.getItem('asera-theme') === 'dark' ? 'dark' : 'light';
 </script>
 <script>
+	document.addEventListener('astro:page-load', () => {
+		document.querySelectorAll<HTMLAnchorElement>('a[href]').forEach((link) => {
+			const url = new URL(link.href);
+			if (url.protocol !== 'http:' && url.protocol !== 'https:') return;
+			if (url.origin === location.origin) {
+				link.removeAttribute('target');
+			} else {
+				link.target = '_blank';
+				link.relList.add('noopener', 'noreferrer');
+			}
+		});
+	});
 	document.addEventListener('astro:before-swap', (event) => {
 		event.newDocument.documentElement.dataset.theme = document.documentElement.dataset.theme;
 	});
