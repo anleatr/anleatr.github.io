@@ -5,18 +5,24 @@ interface Props { headings: MarkdownHeading[] }
 const { headings } = Astro.props;
 const minDepth = Math.min(...headings.map((heading) => heading.depth));
 let sectionNumber = 0;
-const items = headings.map((heading) => ({
-	...heading,
-	marker: heading.depth === minDepth ? String(++sectionNumber) : '•',
-}));
+const ancestors: number[] = [];
+const items = headings.map((heading, index) => {
+	while (ancestors.length && headings[ancestors[ancestors.length - 1]].depth >= heading.depth) ancestors.pop();
+	const parent = ancestors[ancestors.length - 1] ?? -1;
+	ancestors.push(index);
+	return { ...heading, parent, marker: heading.depth === minDepth ? String(++sectionNumber) : '•' };
+});
 ---
 
 <aside class="toc" aria-label="文章目录">
 	<button class="toc-toggle" type="button" aria-expanded="true" aria-controls="article-toc-links">文章目录 <span aria-hidden="true">⌄</span></button>
 	<nav id="article-toc-links" aria-label="文章章节">
 		<ol>
-			{items.map((heading) => (
-				<li style={`--depth: ${heading.depth - minDepth}`}>
+			{items.map((heading, index) => (
+				<li id={`toc-entry-${index}`} data-parent={heading.parent} style={`--depth: ${heading.depth - minDepth}`}>
+					{items[index + 1]?.parent === index && (
+						<button class="section-toggle" type="button" aria-label={`折叠或展开：${heading.text}`} aria-expanded="true" aria-controls={items.map((item, child) => item.parent === index ? `toc-entry-${child}` : '').filter(Boolean).join(' ')}><span aria-hidden="true">⌄</span></button>
+					)}
 					<a href={`#${heading.slug}`} data-heading-id={heading.slug}>
 						<span class="marker" aria-hidden="true">{heading.marker}</span>
 						<span>{heading.text}</span>
@@ -35,8 +41,12 @@ const items = headings.map((heading) => ({
 	nav { display: none; max-height: min(60vh, 32rem); overflow-y: auto; overscroll-behavior: contain; }
 	.toc-toggle[aria-expanded="true"] + nav { display: block; margin-top: 0.75rem; }
 	ol { list-style: none; margin: 0; padding: 0; }
-	li { margin: 0.2rem 0; padding-left: calc(var(--depth) * 0.75rem); }
+	li { position: relative; margin: 0.2rem 0; padding-left: calc(var(--depth) * 0.75rem); }
+	.section-toggle { position: absolute; right: 0; top: 0.25rem; display: grid; place-items: center; width: 1.75rem; height: 1.75rem; border: 0; border-radius: 0.5rem; background: none; color: var(--muted); font: inherit; cursor: pointer; }
+	.section-toggle:hover { background: var(--surface-raised); color: var(--text); }
+	.section-toggle[aria-expanded="false"] span { transform: rotate(-90deg); }
 	a { display: flex; align-items: baseline; gap: 0.5rem; padding: 0.5rem; border-radius: 0.5rem; color: var(--muted); font-size: 0.875rem; line-height: 1.5; text-decoration: none; overflow-wrap: anywhere; }
+	li:has(> .section-toggle) > a { padding-right: 1.75rem; }
 	.marker { flex: 0 0 1.25rem; text-align: center; color: var(--accent-soft); font-size: 0.8rem; }
 	a:hover { color: var(--text); }
 	a[aria-current="location"] { color: var(--accent-soft); background: color-mix(in srgb, var(--accent) 12%, transparent); }
@@ -56,8 +66,21 @@ const items = headings.map((heading) => ({
 	const nav = toc.querySelector<HTMLElement>('nav')!;
 	const links = Array.from(toc.querySelectorAll<HTMLAnchorElement>('a[data-heading-id]'));
 	const headings = links.map((link) => document.getElementById(link.dataset.headingId!)!);
+	const entries = Array.from(nav.querySelectorAll<HTMLLIElement>('li'));
+	const sectionToggles = entries.map((entry) => entry.querySelector<HTMLButtonElement>('.section-toggle'));
 	let current = -1;
 	let scheduled = false;
+
+	function updateVisibility() {
+		entries.forEach((entry) => {
+			const parent = Number(entry.dataset.parent);
+			entry.hidden = parent >= 0 && (entries[parent].hidden || sectionToggles[parent]!.getAttribute('aria-expanded') === 'false');
+		});
+	}
+	sectionToggles.forEach((button) => button?.addEventListener('click', () => {
+		button.setAttribute('aria-expanded', String(button.getAttribute('aria-expanded') !== 'true'));
+		updateVisibility();
+	}));
 
 	toggle.addEventListener('click', () => {
 		toggle.setAttribute('aria-expanded', String(toggle.getAttribute('aria-expanded') !== 'true'));
@@ -65,7 +88,7 @@ const items = headings.map((heading) => ({
 	});
 
 	function keepCurrentHeadingVisible() {
-		if (current < 0 || nav.clientHeight === 0) return;
+		if (current < 0 || nav.clientHeight === 0 || entries[current].hidden) return;
 		const item = links[current].getBoundingClientRect();
 		const panel = nav.getBoundingClientRect();
 		if (item.top >= panel.top && item.bottom <= panel.bottom) return;
@@ -86,6 +109,10 @@ const items = headings.map((heading) => ({
 		if (current >= 0) links[current].removeAttribute('aria-current');
 		links[next].setAttribute('aria-current', 'location');
 		current = next;
+		for (let parent = Number(entries[current].dataset.parent); parent >= 0; parent = Number(entries[parent].dataset.parent)) {
+			sectionToggles[parent]!.setAttribute('aria-expanded', 'true');
+		}
+		updateVisibility();
 		keepCurrentHeadingVisible();
 	}
 
