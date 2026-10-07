@@ -12,8 +12,7 @@ const items = headings.map((heading) => ({
 ---
 
 <aside class="toc" aria-label="文章目录">
-	<div class="toc-title">文章目录</div>
-	<button class="toc-toggle" type="button" aria-expanded="false" aria-controls="article-toc-links">文章目录 <span aria-hidden="true">⌄</span></button>
+	<button class="toc-toggle" type="button" aria-expanded="true" aria-controls="article-toc-links">文章目录 <span aria-hidden="true">⌄</span></button>
 	<nav id="article-toc-links" aria-label="文章章节">
 		<ol>
 			{items.map((heading) => (
@@ -30,8 +29,9 @@ const items = headings.map((heading) => ({
 
 <style>
 	.toc { order: -1; padding: 1rem; border: 1px solid var(--line); border-radius: var(--card-radius); background: var(--surface); }
-	.toc-title { display: none; margin-bottom: 0.75rem; padding-left: 0.75rem; border-left: 3px solid var(--accent); color: var(--text); font-weight: 600; font-size: 1.05rem; }
 	.toc-toggle { display: flex; justify-content: space-between; width: 100%; padding: 0; border: 0; background: none; color: var(--text); font: inherit; font-size: 0.9rem; cursor: pointer; }
+	.toc-toggle span { transform: rotate(-90deg); }
+	.toc-toggle[aria-expanded="true"] span { transform: none; }
 	nav { display: none; max-height: min(60vh, 32rem); overflow-y: auto; overscroll-behavior: contain; }
 	.toc-toggle[aria-expanded="true"] + nav { display: block; margin-top: 0.75rem; }
 	ol { list-style: none; margin: 0; padding: 0; }
@@ -42,9 +42,8 @@ const items = headings.map((heading) => ({
 	a[aria-current="location"] { color: var(--accent-soft); background: color-mix(in srgb, var(--accent) 12%, transparent); }
 	@media (min-width: 768px) {
 		.toc { order: 0; position: sticky; top: 92px; }
-		.toc-title { display: block; }
-		.toc-toggle { display: none; }
-		nav { display: block; max-height: calc(100vh - 170px); scrollbar-width: thin; }
+		.toc-toggle { padding-left: 0.75rem; border-left: 3px solid var(--accent); font-weight: 600; font-size: 1.05rem; }
+		nav { max-height: calc(100vh - 170px); scrollbar-width: thin; }
 	}
 </style>
 
