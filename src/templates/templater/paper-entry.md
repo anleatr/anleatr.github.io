@@ -1,8 +1,53 @@
 <%*
-const title = await tp.system.prompt("论文标题", "", true);
-const arxivInput = await tp.system.prompt("arXiv ID 或完整 URL", "", true);
-const project = await tp.system.prompt("项目主页 URL，没有则留空", "", true);
-const repoInput = await tp.system.prompt("GitHub 仓库名或完整 URL，没有则留空", "", true);
+const values = await new Promise((resolve) => {
+	class PaperEntryModal extends tp.obsidian.Modal {
+		constructor() {
+			super(app);
+			this.values = null;
+		}
+		onOpen() {
+			this.contentEl.createEl("h2", { text: "插入论文" });
+			const form = this.contentEl.createEl("form");
+			form.style.cssText = "display:grid;gap:16px";
+			const fields = [
+				["title", "论文标题", "", true],
+				["arxivInput", "arXiv ID 或完整 URL", "2606.16993 或 https://arxiv.org/abs/2606.16993", true],
+				["project", "项目主页（可留空）", "https://…", false],
+				["repoInput", "GitHub 仓库名或完整 URL（可留空）", "AMAP-ML/DreamX-World 或 https://github.com/…", false],
+			];
+			for (const [name, text, placeholder, required] of fields) {
+				const label = form.createEl("label");
+				label.style.cssText = "display:grid;gap:6px";
+				label.createEl("span", { text });
+				const input = label.createEl("input", { type: "text", placeholder });
+				input.name = name;
+				input.required = required;
+				input.style.width = "100%";
+			}
+			const actions = form.createDiv();
+			actions.style.cssText = "display:flex;justify-content:flex-end;gap:8px";
+			actions.createEl("button", { text: "取消", type: "button" }).addEventListener("click", () => this.close());
+			actions.createEl("button", { text: "插入", type: "submit", cls: "mod-cta" });
+			form.addEventListener("submit", (event) => {
+				event.preventDefault();
+				for (const input of form.querySelectorAll("input")) {
+					input.value = input.value.trim();
+				}
+				if (!form.reportValidity()) return;
+				this.values = Object.fromEntries(new FormData(form));
+				this.close();
+			});
+			form.querySelector("input").focus();
+		}
+		onClose() {
+			this.contentEl.empty();
+			resolve(this.values);
+		}
+	}
+	new PaperEntryModal().open();
+});
+if (values === null) return;
+const { title, arxivInput, project, repoInput } = values;
 
 const arxiv = arxivInput
 	.trim()

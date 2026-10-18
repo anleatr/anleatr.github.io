@@ -1,9 +1,17 @@
 ---
 title: World Model for Autonomous Driving
-description: ""
-pubDate: "2026-10-03T17:06+08:00"
-updatedDate: 2026-10-04T13:21+08:00
+description: 自动驾驶世界模型Paper Reading
+pubDate: 2026-10-03T17:06+08:00
+updatedDate: 2026-10-18T17:49+08:00
 ---
+# 已读
+## WorldDrive: Bridging Scene Generation and Planning: Driving with World Model via Unifying Vision and Motion Representation
+
+[![arXiv](https://img.shields.io/badge/arXiv-2603.14948-b31b1b?style=flat-square)](https://arxiv.org/abs/2603.14948) [![Code](https://img.shields.io/github/stars/TabGuigui/WorldDrive?style=flat-square&logo=github&label=Code&color=181717)](https://github.com/TabGuigui/WorldDrive)
+
+耦合**未来状态生成**和**轨迹规划**
+![](Pasted%20image%2020261018174906.png)
+
 
 # 自车规划与控制
 
@@ -115,18 +123,21 @@ updatedDate: 2026-10-04T13:21+08:00
 
 [![ICRA 2026](https://img.shields.io/badge/ICRA-2026-2563eb?style=flat-square)](https://github.com/dk-liang/UniFuture) [![arXiv](https://img.shields.io/badge/arXiv-2503.13587-b31b1b?style=flat-square)](https://arxiv.org/abs/2503.13587) [![Project](https://img.shields.io/badge/Website-Project_Page-2774ae?style=flat-square)](https://dk-liang.github.io/UniFuture/) [![Code](https://img.shields.io/github/stars/dk-liang/UniFuture?style=flat-square&logo=github&label=Code&color=181717)](https://github.com/dk-liang/UniFuture)
 
-
+输入：一张前向摄像头的RGB图像
+输出：未来N帧的RGB图像和对应深度图
 ## RAYNOVA: Scale-Temporal Autoregressive World Modeling in Ray Space
 
 [![CVPR 2026](https://img.shields.io/badge/CVPR-2026-2563eb?style=flat-square)](https://openaccess.thecvf.com/content/CVPR2026/html/Xie_RAYNOVA_Scale-Temporal_Autoregressive_World_Modeling_in_Ray_Space_CVPR_2026_paper.html) [![arXiv](https://img.shields.io/badge/arXiv-2602.20685-b31b1b?style=flat-square)](https://arxiv.org/abs/2602.20685) [![Project](https://img.shields.io/badge/Website-Project_Page-2774ae?style=flat-square)](https://raynova-ai.github.io/) [![Code](https://img.shields.io/github/stars/Applied-Intuition-Open-Source/RayNova?style=flat-square&logo=github&label=Code&color=181717)](https://github.com/Applied-Intuition-Open-Source/RayNova)
 
-
+ 输入：不同时刻、位置的相机位姿， 以及可选的图像、文本、3D车辆框、HD地图条件
+ 输出：指定时刻位姿的多视角RGB图像
 ## GenieDrive: Towards Physics-Aware Driving World Model with 4D Occupancy Guided Video Generation
 
 [![CVPR 2026](https://img.shields.io/badge/CVPR-2026-2563eb?style=flat-square)](https://openaccess.thecvf.com/content/CVPR2026/html/Yang_GenieDrive_Towards_Physics-Aware_Driving_World_Model_with_4D_Occupancy_Guided_CVPR_2026_paper.html) [![arXiv](https://img.shields.io/badge/arXiv-2512.12751-b31b1b?style=flat-square)](https://arxiv.org/abs/2512.12751) [![Project](https://img.shields.io/badge/Website-Project_Page-2774ae?style=flat-square)](https://huster-yzy.github.io/geniedrive_project_page/) [![Code](https://img.shields.io/github/stars/Huster-YZY/GenieDrive?style=flat-square&logo=github&label=Code&color=181717)](https://github.com/Huster-YZY/GenieDrive)
 
-
-## OmniNWM: Unifying the State-Action-Reward Triad for Closed-Loop Panoramic Driving Navigation World Models
+输入：当前／历史 3D 语义占据＋初始多视角 RGB＋驾驶控制
+输出：未来多视角 RGB 视频
+## OmniNWM: Omniscient Driving Navigation World Models
 
 [![ECCV 2026](https://img.shields.io/badge/ECCV-2026-2563eb?style=flat-square)](https://eccv.ecva.net/virtual/2026/poster/3205) [![arXiv](https://img.shields.io/badge/arXiv-2510.18313-b31b1b?style=flat-square)](https://arxiv.org/abs/2510.18313) [![Project](https://img.shields.io/badge/Website-Project_Page-2774ae?style=flat-square)](https://arlo0o.github.io/OmniNWM/) [![Code](https://img.shields.io/github/stars/Ma-Zhuang/OmniNWM?style=flat-square&logo=github&label=Code&color=181717)](https://github.com/Ma-Zhuang/OmniNWM)
 
@@ -171,7 +182,7 @@ updatedDate: 2026-10-04T13:21+08:00
 [![IROS 2025](https://img.shields.io/badge/IROS-2025-2563eb?style=flat-square)](https://4dvlab.github.io/STAGE/) [![arXiv](https://img.shields.io/badge/arXiv-2506.13138-b31b1b?style=flat-square)](https://arxiv.org/abs/2506.13138) [![Project](https://img.shields.io/badge/Website-Project_Page-2774ae?style=flat-square)](https://4dvlab.github.io/STAGE/)
 
 
-## Overcoming Challenges of Long-Horizon Prediction in Driving World Models (Orbis)
+## Orbis: Overcoming Challenges of Long-Horizon Prediction in Driving World Models
 
 [![NeurIPS 2025](https://img.shields.io/badge/NeurIPS-2025-2563eb?style=flat-square)](https://neurips.cc/virtual/2025/loc/san-diego/poster/118316) [![arXiv](https://img.shields.io/badge/arXiv-2507.13162-b31b1b?style=flat-square)](https://arxiv.org/abs/2507.13162) [![Project](https://img.shields.io/badge/Website-Project_Page-2774ae?style=flat-square)](https://lmb-freiburg.github.io/orbis.github.io/) [![Code](https://img.shields.io/github/stars/lmb-freiburg/orbis?style=flat-square&logo=github&label=Code&color=181717)](https://github.com/lmb-freiburg/orbis)
 
