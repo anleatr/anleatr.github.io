@@ -35,6 +35,7 @@ const { title, description, pubDate, updatedDate, headings } = Astro.props;
 
 <style>
 	.article-grid { grid-template-columns: minmax(0, 1fr); }
+	.article-header, .prose { max-width: 47rem; margin-inline: auto; }
 	.article-header { margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--line); }
 	.back { color: var(--accent-soft); font-size: 0.85rem; text-decoration: none; }
 	.article-header h1 { margin-top: 0.75rem; font-size: clamp(1.6rem, 2.5vw, 2.25rem); letter-spacing: -0.025em; overflow-wrap: anywhere; }
@@ -42,7 +43,7 @@ const { title, description, pubDate, updatedDate, headings } = Astro.props;
 	.date { margin-top: 0.75rem; color: var(--muted); font-size: 0.82rem; }
 	.prose { min-width: 0; }
 	.prose :global(:is(h1, h2, h3, h4, h5, h6)[id]) { scroll-margin-top: 140px; }
-	@media (min-width: 768px) {
+	@media (min-width: 960px) {
 		.article-grid.has-toc { grid-template-columns: minmax(0, 1fr) var(--sidebar-width); }
 	}
 </style>

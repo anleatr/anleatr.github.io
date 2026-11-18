@@ -1,33 +1,32 @@
 ---
-import { GITHUB_URL, SITE_TITLE } from '../consts';
+import { SITE_TITLE } from '../consts';
 import HeaderLink from './HeaderLink.astro';
+
+const section = Astro.url.pathname.split('/')[1];
+const pageLabel = section === '' ? 'Home Page' : section === 'research' ? 'Research' : section === 'blog' ? 'Blog' : '';
+const identity = pageLabel ? `${SITE_TITLE}'s ${pageLabel}` : SITE_TITLE;
 ---
 
-<header transition:name="site-header" transition:animate="none">
+<header class="shell site-header" transition:name="site-header" transition:animate="none">
 	<nav>
-		<a class="identity" href="/" aria-label={`${SITE_TITLE} home`}>
-			<span class="mark" aria-hidden="true">A</span>
-			<span>{SITE_TITLE}</span>
-		</a>
+		<a class="identity" href="/">{identity}</a>
 		<div class="internal-links">
 			<HeaderLink href="/">Home</HeaderLink>
 			<HeaderLink href="/research">Research</HeaderLink>
 			<HeaderLink href="/blog">Blog</HeaderLink>
-			<HeaderLink href="/about">About</HeaderLink>
 		</div>
 		<div class="header-actions">
 			<button class="theme-toggle" type="button" aria-label="切换到暗色主题" title="切换到暗色主题" aria-pressed="false">
 				<svg class="moon-icon" aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20.9 13A9 9 0 0 1 11 3.1 9 9 0 1 0 20.9 13Z" /></svg>
 				<svg class="sun-icon" aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><circle cx="12" cy="12" r="4" /><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42" /></svg>
 			</button>
-			<a class="github-link" href={GITHUB_URL} target="_blank" rel="noreferrer">GitHub ↗</a>
 		</div>
 	</nav>
 </header>
 
 <script>
 	document.addEventListener('astro:page-load', () => {
-		const header = document.querySelector<HTMLElement>('header')!;
+		const header = document.querySelector<HTMLElement>('.site-header')!;
 		const themeToggle = header.querySelector<HTMLButtonElement>('.theme-toggle')!;
 		function updateThemeButton() {
 			const dark = document.documentElement.dataset.theme === 'dark';
@@ -44,7 +43,6 @@ import HeaderLink from './HeaderLink.astro';
 		});
 		updateThemeButton();
 
-		if (location.pathname !== '/blog' && !location.pathname.startsWith('/blog/')) return;
 		const listeners = new AbortController();
 		let previousY = Math.max(0, window.scrollY);
 		window.addEventListener('scroll', () => {
@@ -64,7 +62,7 @@ import HeaderLink from './HeaderLink.astro';
 </script>
 
 <style>
-	.header-actions { display: flex; align-items: center; gap: 0.75rem; }
+	.header-actions { display: flex; align-items: center; }
 	.theme-toggle { display: grid; width: 2.5rem; height: 2.5rem; place-items: center; padding: 0; border: 0; border-radius: 50%; background: none; color: var(--muted); cursor: pointer; }
 	.theme-toggle:hover { background: var(--surface-raised); color: var(--accent-soft); }
 	.theme-toggle:focus-visible { outline: 2px solid var(--accent-soft); outline-offset: 4px; }
@@ -75,12 +73,11 @@ import HeaderLink from './HeaderLink.astro';
 		position: sticky;
 		top: 0.75rem;
 		z-index: 20;
-		width: min(var(--page-width), calc(100% - 2rem));
-		margin: 0.75rem auto 0;
+		margin-top: 0.75rem;
 		border: 1px solid var(--line);
 		border-radius: var(--card-radius);
-		background: color-mix(in srgb, var(--surface) 72%, transparent);
-		backdrop-filter: blur(18px) saturate(120%);
+		background: color-mix(in srgb, var(--surface) 55%, transparent);
+		backdrop-filter: blur(22px) saturate(140%);
 		box-shadow: 0 4px 20px color-mix(in srgb, var(--text) 5%, transparent);
 		transition: transform 200ms ease, opacity 200ms ease;
 	}
@@ -94,24 +91,11 @@ import HeaderLink from './HeaderLink.astro';
 		justify-content: space-between;
 	}
 	.identity {
-		display: inline-flex;
-		align-items: center;
-		gap: 0.65rem;
 		color: var(--text);
 		font-family: var(--font-display);
 		font-size: 1.05rem;
 		font-weight: 700;
 		text-decoration: none;
-	}
-	.mark {
-		display: grid;
-		width: 2rem;
-		height: 2rem;
-		place-items: center;
-		border: 1px solid var(--accent);
-		border-radius: 50%;
-		color: var(--accent-soft);
-		font-family: var(--font-display);
 	}
 	.internal-links {
 		position: absolute;
@@ -120,13 +104,6 @@ import HeaderLink from './HeaderLink.astro';
 		gap: 0.25rem;
 		transform: translateX(-50%);
 	}
-	.github-link {
-		color: var(--muted);
-		font-size: 0.9rem;
-		text-decoration: none;
-	}
-	.github-link:hover { color: var(--text); }
-	@media (min-width: 1280px) { header { width: min(var(--page-width), 92vw); } }
 	@media (prefers-reduced-motion: reduce) { header { transition: none; } }
 	@media (max-width: 760px) {
 		nav {
