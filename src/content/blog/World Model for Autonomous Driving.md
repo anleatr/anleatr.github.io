@@ -1,16 +1,25 @@
 ---
 title: World Model for Autonomous Driving
 description: 自动驾驶世界模型Paper Reading
+imageFolder: world-model-for-autonomous-driving
 pubDate: 2026-10-03T17:06+08:00
-updatedDate: 2026-10-18T17:49+08:00
+updatedDate: 2026-10-28T19:30+08:00
 ---
 # 已读
+
+## GEM
+
+将自车轨迹、物体条件、行人姿势注入到生成过程中，
+
+## UniFuture
+
+联合生成未来视频和对应深度图
+
 ## WorldDrive: Bridging Scene Generation and Planning: Driving with World Model via Unifying Vision and Motion Representation
 
 [![arXiv](https://img.shields.io/badge/arXiv-2603.14948-b31b1b?style=flat-square)](https://arxiv.org/abs/2603.14948) [![Code](https://img.shields.io/github/stars/TabGuigui/WorldDrive?style=flat-square&logo=github&label=Code&color=181717)](https://github.com/TabGuigui/WorldDrive)
 
 耦合**未来状态生成**和**轨迹规划**
-![](Pasted%20image%2020261018174906.png)
 
 
 # 自车规划与控制

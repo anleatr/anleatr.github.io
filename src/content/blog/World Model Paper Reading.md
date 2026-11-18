@@ -1,6 +1,7 @@
 ---
 title: World Model Paper Reading
 description: 记录读论文过程中的一些思考
+imageFolder: world-model-paper-reading
 pubDate: 2026-10-02T13:59+08:00
 updatedDate: 2026-10-03T16:57+08:00
 ---

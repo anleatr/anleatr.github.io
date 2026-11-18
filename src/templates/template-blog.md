@@ -1,6 +1,7 @@
 ---
-title: {{title}}
+title: "{{title}}"
 description: ""
+imageFolder: "{{title}}"
 pubDate: "{{date:YYYY-MM-DDTHH:mmZ}}"
 updatedDate: "{{date:YYYY-MM-DDTHH:mmZ}}"
 ---
