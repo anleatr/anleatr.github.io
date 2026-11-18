@@ -34,14 +34,20 @@ const items = headings.map((heading, index) => {
 </aside>
 
 <style>
-	.toc { order: -1; padding: 1rem; border: 1px solid var(--line); border-radius: var(--card-radius); background: var(--surface); }
+	.toc { display: flex; flex-direction: column; gap: 0.75rem; padding: 1rem; border: 1px solid var(--line); border-radius: var(--card-radius); background: var(--surface); }
 	.toc-toggle { display: flex; justify-content: space-between; width: 100%; padding: 0; border: 0; background: none; color: var(--text); font: inherit; font-size: 0.9rem; cursor: pointer; }
 	.toc-toggle span { transform: rotate(-90deg); }
 	.toc-toggle[aria-expanded="true"] span { transform: none; }
+	.toc-toggle { flex: none; }
 	nav { display: none; max-height: min(60vh, 32rem); overflow-y: auto; overscroll-behavior: contain; }
-	.toc-toggle[aria-expanded="true"] + nav { display: block; margin-top: 0.75rem; }
+	.toc-toggle[aria-expanded="true"] + nav { display: block; }
 	ol { list-style: none; margin: 0; padding: 0; }
-	li { position: relative; margin: 0.2rem 0; padding-left: calc(var(--depth) * 0.75rem); }
+	li { position: relative; margin: 0.2rem 0; padding-inline-start: calc(0.55rem + var(--depth) * 0.75rem); }
+	li::before { position: absolute; inset-block: 0.1rem; inset-inline-start: 0; width: 3px; border-radius: 999px; background: var(--line); pointer-events: none; content: ''; }
+	li.is-passed::before { background: var(--accent); }
+	li:has(> a[aria-current="location"])::before {
+		background: linear-gradient(to bottom, var(--accent-soft) 0 var(--chapter-progress), var(--line) var(--chapter-progress) 100%);
+	}
 	.section-toggle { position: absolute; right: 0; top: 0.25rem; display: grid; place-items: center; width: 1.75rem; height: 1.75rem; border: 0; border-radius: 0.5rem; background: none; color: var(--muted); font: inherit; cursor: pointer; }
 	.section-toggle:hover { background: var(--surface-raised); color: var(--text); }
 	.section-toggle[aria-expanded="false"] span { transform: rotate(-90deg); }
@@ -51,9 +57,9 @@ const items = headings.map((heading, index) => {
 	a:hover { color: var(--text); }
 	a[aria-current="location"] { color: var(--accent-soft); background: color-mix(in srgb, var(--accent) 12%, transparent); }
 	@media (min-width: 960px) {
-		.toc { order: 0; position: sticky; top: 92px; }
-		.toc-toggle { padding-left: 0.75rem; border-left: 3px solid var(--accent); font-weight: 600; font-size: 1.05rem; }
-		nav { max-height: calc(100vh - 170px); scrollbar-width: thin; }
+		.toc { position: sticky; top: 92px; max-height: calc(100dvh - 108px); }
+		.toc-toggle { font-weight: 600; font-size: 1.05rem; }
+		nav { min-height: 0; max-height: none; scrollbar-width: thin; }
 	}
 </style>
 
@@ -64,12 +70,13 @@ const items = headings.map((heading, index) => {
 	const listeners = new AbortController();
 	const toggle = toc.querySelector<HTMLButtonElement>('button')!;
 	const nav = toc.querySelector<HTMLElement>('nav')!;
+	const article = toc.parentElement!.querySelector('article')!;
 	const links = Array.from(toc.querySelectorAll<HTMLAnchorElement>('a[data-heading-id]'));
 	const headings = links.map((link) => document.getElementById(link.dataset.headingId!)!);
 	const entries = Array.from(nav.querySelectorAll<HTMLLIElement>('li'));
 	const sectionToggles = entries.map((entry) => entry.querySelector<HTMLButtonElement>('.section-toggle'));
 	let current = -1;
-	let scheduled = false;
+	let frame = 0;
 
 	function updateVisibility() {
 		entries.forEach((entry) => {
@@ -98,16 +105,34 @@ const items = headings.map((heading, index) => {
 		});
 	}
 
-	function updateCurrentHeading() {
-		scheduled = false;
+	function updateReadingPosition() {
+		frame = 0;
+		const articleBottom = article.getBoundingClientRect().bottom;
+		const viewport = window.innerHeight;
+		const anchor = Math.min(145, viewport);
+		const remaining = Math.max(0, articleBottom - viewport);
+		// In the last viewport, the reading line moves down to reach the end of the text.
+		const finalSweep = Math.min(window.scrollY + remaining, viewport - anchor);
+		const line = anchor + (viewport - anchor) * (finalSweep > 0 ? Math.max(0, 1 - remaining / finalSweep) : 0);
+
 		let next = 0;
-		for (let index = 0; index < headings.length; index++) {
-			if (headings[index].getBoundingClientRect().top <= 145) next = index;
-			else break;
+		let start = headings[0].getBoundingClientRect().top;
+		let end = articleBottom;
+		for (let index = 1; index < headings.length; index++) {
+			const top = headings[index].getBoundingClientRect().top;
+			if (top > line) {
+				end = top;
+				break;
+			}
+			next = index;
+			start = top;
 		}
+		const fraction = end > start ? Math.min(1, Math.max(0, (line - start) / (end - start))) : 0;
+		entries[next].style.setProperty('--chapter-progress', `${100 * fraction}%`);
 		if (next === current) return;
 		if (current >= 0) links[current].removeAttribute('aria-current');
 		links[next].setAttribute('aria-current', 'location');
+		entries.forEach((entry, index) => entry.classList.toggle('is-passed', index < next));
 		current = next;
 		for (let parent = Number(entries[current].dataset.parent); parent >= 0; parent = Number(entries[parent].dataset.parent)) {
 			sectionToggles[parent]!.setAttribute('aria-expanded', 'true');
@@ -116,17 +141,22 @@ const items = headings.map((heading, index) => {
 		keepCurrentHeadingVisible();
 	}
 
-	window.addEventListener('scroll', () => {
-		if (!scheduled) {
-			scheduled = true;
-			requestAnimationFrame(updateCurrentHeading);
-		}
-	}, { passive: true, signal: listeners.signal });
-	window.addEventListener('resize', () => {
-		updateCurrentHeading();
+	function scheduleUpdate() {
+		if (!frame) frame = requestAnimationFrame(updateReadingPosition);
+	}
+	window.addEventListener('scroll', scheduleUpdate, { passive: true, signal: listeners.signal });
+	window.addEventListener('resize', scheduleUpdate, { signal: listeners.signal });
+	const resizeObserver = new ResizeObserver(() => {
+		scheduleUpdate();
 		keepCurrentHeadingVisible();
-	}, { signal: listeners.signal });
-	document.addEventListener('astro:before-swap', () => listeners.abort(), { once: true });
-	updateCurrentHeading();
+	});
+	resizeObserver.observe(article);
+	resizeObserver.observe(nav);
+	document.addEventListener('astro:before-swap', () => {
+		listeners.abort();
+		resizeObserver.disconnect();
+		cancelAnimationFrame(frame);
+	}, { once: true });
+	updateReadingPosition();
 	});
 </script>

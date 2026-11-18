@@ -15,14 +15,18 @@ const posts = (await getCollection('blog')).sort(
 	<body>
 		<Header />
 		<main class="shell page-grid blog-grid">
-			<section class="archive card" aria-label="Blog archive">
-				<div class="section-heading"><h2>All writing</h2></div>
-				<ul class="post-list">
+			<section class="archive" aria-labelledby="archive-title">
+				<h1 id="archive-title">All Writing</h1>
+				<ul class="post-list archive-list">
 					{posts.map((post) => (
-						<li class="post-item">
-							<a href={`/blog/${post.id}/`}>
-								<div><h3>{post.data.title}</h3><p>{post.data.description}</p></div>
-								<time datetime={post.data.pubDate.toISOString()}><FormattedDate date={post.data.pubDate} /></time>
+						<li>
+							<a class="card archive-card" href={`/blog/${post.id}/`}>
+								<h2>{post.data.title}</h2>
+								<p>{post.data.description}</p>
+								<div class="archive-dates">
+									<span>Created on <FormattedDate date={post.data.pubDate} /></span>
+									{post.data.updatedDate && <span>Last Updated on <FormattedDate date={post.data.updatedDate} /></span>}
+								</div>
 							</a>
 						</li>
 					))}
@@ -34,4 +38,13 @@ const posts = (await getCollection('blog')).sort(
 
 <style>
 	.blog-grid { grid-template-columns: minmax(0, 1fr); }
+	.archive h1 { margin: 0 0 1rem; font-size: 1.25rem; }
+	.archive-list { display: grid; gap: var(--layout-gap); }
+	.archive-card { display: grid; gap: 0.4rem; color: var(--text); text-decoration: none; }
+	.archive-card:is(:hover, :focus-visible) { border-color: var(--accent); }
+	.archive-card:is(:hover, :focus-visible) h2 { color: var(--accent-soft); }
+	.archive-card h2 { font-size: clamp(1.1rem, 2vw, 1.4rem); overflow-wrap: anywhere; }
+	.archive-card p { margin: 0; color: var(--muted); font-size: 0.95rem; }
+	.archive-dates { display: flex; flex-wrap: wrap; gap: 0.15rem 1rem; margin-top: 0.4rem; color: var(--muted); font-size: 0.82rem; }
+	.archive-dates :global(time) { white-space: nowrap; }
 </style>
