@@ -1,0 +1,68 @@
+---
+import snapshot from '../github-contributions.json';
+
+const start = new Date(snapshot.start);
+const offset = start.getUTCDay();
+const weekCount = Math.ceil((offset + snapshot.days.length) / 7);
+const monthFormat = new Intl.DateTimeFormat('en', { month: 'short', timeZone: 'UTC' });
+const dates = snapshot.days.map(([count, level], index) => ({
+	date: new Date(start.valueOf() + 86_400_000 * index),
+	count,
+	level,
+}));
+const monthStarts = dates.flatMap(({ date }, index) => index === 0 || date.getUTCDate() === 1 ? [{
+	label: monthFormat.format(date),
+	column: Math.floor((offset + index) / 7) + 1,
+}] : []);
+const months = monthStarts.filter(({ column }, index) => !monthStarts[index + 1] || monthStarts[index + 1].column - column >= 2);
+const total = dates.reduce((sum, { count }) => sum + count, 0);
+---
+
+<section class="card contribution" aria-labelledby="home-contribution">
+	<div class="section-heading">
+		<h2 id="home-contribution">Contribution</h2>
+	</div>
+	<div class="calendar-scroll" role="region" aria-label="GitHub contribution calendar" tabindex="0">
+		<div class="calendar" style={`--weeks: ${weekCount}`}>
+			<div class="months" aria-hidden="true">
+				{months.map(({ label, column }) => <span style={`grid-column: ${column}`}>{label}</span>)}
+			</div>
+			<div class="days" role="img" aria-label={`Daily contributions, ${snapshot.start} to ${snapshot.through}.`}>
+				{Array.from({ length: offset }, () => <span></span>)}
+				{dates.map(({ date, count, level }) => (
+					<span class="square" data-level={level} title={`${date.toISOString().slice(0, 10)} · ${count} ${count === 1 ? 'contribution' : 'contributions'}`}></span>
+				))}
+			</div>
+		</div>
+	</div>
+	<div class="calendar-meta">
+		<p class="summary"><strong>{total.toLocaleString('en-US')}</strong> contributions in the last year</p>
+		<div class="legend" aria-hidden="true">
+			<span>Less</span>
+			{[0, 1, 2, 3, 4].map(level => <span class="square" data-level={level}></span>)}
+			<span>More</span>
+		</div>
+	</div>
+</section>
+
+<style>
+	.contribution { min-width: 0; --calendar-accent: #245bc4; }
+	:global([data-theme="dark"]) .contribution { --calendar-accent: var(--accent-soft); }
+	.summary { margin: 0; }
+	.summary strong { color: var(--text); }
+	.calendar-scroll { overflow-x: auto; overscroll-behavior-inline: contain; scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
+	.calendar { min-width: 35rem; }
+	.months, .days { display: grid; grid-template-columns: repeat(var(--weeks), minmax(0, 1fr)); gap: 3px; }
+	.months { margin-bottom: 0.22rem; color: var(--muted); font-size: 0.7rem; }
+	.days { grid-auto-flow: column; grid-template-rows: repeat(7, auto); }
+	.square { display: block; aspect-ratio: 1; border-radius: 2px; background: var(--line); }
+	.square:not([data-level="0"]) { background: color-mix(in srgb, var(--calendar-accent) var(--intensity), var(--surface)); }
+	[data-level="1"] { --intensity: 30%; }
+	[data-level="2"] { --intensity: 50%; }
+	[data-level="3"] { --intensity: 72%; }
+	[data-level="4"] { --intensity: 100%; }
+	.days .square:hover { outline: 1px solid var(--calendar-accent); outline-offset: -1px; }
+	.calendar-meta { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.25rem 0.75rem; margin-top: 0.6rem; color: var(--muted); font-size: 0.75rem; }
+	.legend { display: flex; align-items: center; gap: 4px; margin-inline-start: auto; }
+	.legend .square { width: 0.65rem; }
+</style>

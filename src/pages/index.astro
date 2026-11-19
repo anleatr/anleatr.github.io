@@ -3,6 +3,7 @@ import { Image } from 'astro:assets';
 import { getCollection } from 'astro:content';
 import Avatar from '../assets/avatar.jpg';
 import BaseHead from '../components/BaseHead.astro';
+import ContributionCalendar from '../components/ContributionCalendar.astro';
 import FormattedDate from '../components/FormattedDate.astro';
 import Header from '../components/Header.astro';
 import { GITHUB_URL, SITE_DESCRIPTION, SITE_TITLE } from '../consts';
@@ -44,6 +45,7 @@ const posts = (await getCollection('blog'))
 					<div class="section-heading"><h2 id="home-about">About</h2></div>
 					<p>{SITE_DESCRIPTION}</p>
 				</section>
+				<ContributionCalendar />
 				<section class="card" aria-labelledby="home-latest">
 					<div class="section-heading">
 						<h2 id="home-latest">Latest Writing</h2>
