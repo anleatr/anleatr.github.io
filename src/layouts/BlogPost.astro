@@ -15,11 +15,16 @@ const { title, description, pubDate, updatedDate, headings } = Astro.props;
 	<head><BaseHead title={`${title} · Asera`} description={description} /></head>
 	<body>
 		<Header />
-		<main class="shell page-grid article-grid" class:list={{ 'has-toc': headings.length > 0 }}>
-			{headings.length > 0 && <TableOfContents headings={headings} />}
+		<main class="shell page-grid article-grid">
+			<div class="reading-tools">
+				<a class="back" href="/blog">
+					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5m7 7-7-7 7-7" /></svg>
+					Back to Blog
+				</a>
+				{headings.length > 0 && <TableOfContents headings={headings} />}
+			</div>
 			<article class="card article">
 				<header class="article-header">
-					<a class="back" href="/blog">← Blog</a>
 					<h1>{title}</h1>
 					<p class="description">{description}</p>
 					<div class="date">
@@ -33,17 +38,72 @@ const { title, description, pubDate, updatedDate, headings } = Astro.props;
 	</body>
 </html>
 
+<script>
+	import mediumZoom from 'medium-zoom';
+
+	const zoom = mediumZoom({
+		margin: 16,
+		background: 'color-mix(in srgb, var(--background) 88%, transparent)',
+	});
+
+	document.addEventListener('astro:page-load', () => {
+		const images = document.querySelectorAll<HTMLImageElement>('.prose img:not(a img):not([src*="img.shields.io"])');
+		for (const image of images) {
+			image.tabIndex = 0;
+			image.setAttribute('role', 'button');
+			image.setAttribute('aria-label', image.alt ? `放大图片：${image.alt}` : '放大图片');
+		}
+		zoom.attach(...images);
+	});
+	document.addEventListener('keydown', (event) => {
+		const image = event.target;
+		if (!(image instanceof HTMLImageElement) || !zoom.getImages().includes(image)) return;
+		if (event.key !== 'Enter' && event.key !== ' ') return;
+		event.preventDefault();
+		void zoom.open({ target: image });
+	});
+	zoom.on('closed', (event) => (event.target as HTMLImageElement).focus({ preventScroll: true }));
+	document.addEventListener('astro:before-swap', () => zoom.detach());
+</script>
+
 <style>
 	.article-grid { grid-template-columns: minmax(0, 1fr); }
 	.article-header, .prose { max-width: 47rem; margin-inline: auto; }
 	.article-header { margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--line); }
-	.back { color: var(--accent-soft); font-size: 0.85rem; text-decoration: none; }
-	.article-header h1 { margin-top: 0.75rem; font-size: clamp(1.6rem, 2.5vw, 2.25rem); letter-spacing: -0.025em; overflow-wrap: anywhere; }
+	.back {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.45rem;
+		min-height: 2.75rem;
+		padding-inline: 0.85rem;
+		border: 1px solid var(--line);
+		border-radius: 999px;
+		background: color-mix(in srgb, var(--surface-raised) 88%, transparent);
+		backdrop-filter: blur(12px);
+		box-shadow: 0 2px 8px color-mix(in srgb, var(--text) 8%, transparent);
+		color: var(--accent-soft);
+		font-size: 0.85rem;
+		font-weight: 600;
+		text-decoration: none;
+	}
+	.back:hover { border-color: var(--accent); }
+	.article-header h1 { font-size: clamp(1.6rem, 2.5vw, 2.25rem); letter-spacing: -0.025em; overflow-wrap: anywhere; }
 	.description { margin: 0.75rem 0 0; color: var(--muted); font-size: 1rem; }
 	.date { margin-top: 0.75rem; color: var(--muted); font-size: 0.82rem; }
 	.prose { min-width: 0; }
 	.prose :global(:is(h1, h2, h3, h4, h5, h6)[id]) { scroll-margin-top: 140px; }
+	.prose :global(.medium-zoom-image:focus-visible) { outline: 2px solid var(--accent-soft); outline-offset: 4px; }
+	:global(.medium-zoom-overlay) { z-index: 40; }
+	:global(.medium-zoom-image--opened) { z-index: 41; }
 	@media (min-width: 960px) {
-		.article-grid.has-toc { grid-template-columns: var(--sidebar-width) minmax(0, 1fr); }
+		.article-grid { grid-template-columns: var(--sidebar-width) minmax(0, 1fr); }
+		.reading-tools { position: sticky; top: 92px; display: flex; flex-direction: column; align-items: flex-start; gap: 1rem; max-height: calc(100dvh - 108px); }
+		.reading-tools :global(.toc) { align-self: stretch; }
+		.back { flex: none; }
+	}
+	@media (width < 960px) {
+		.article-grid { padding-bottom: calc(5rem + env(safe-area-inset-bottom)); }
+		.reading-tools { display: contents; }
+		.back { position: fixed; z-index: 15; inset-inline-start: max(1rem, env(safe-area-inset-left)); bottom: calc(0.75rem + env(safe-area-inset-bottom)); }
 	}
 </style>

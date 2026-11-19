@@ -1,8 +1,14 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseHead from '../../components/BaseHead.astro';
-import FormattedDate from '../../components/FormattedDate.astro';
 import Header from '../../components/Header.astro';
+
+const archiveDate = new Intl.DateTimeFormat('sv-SE', {
+	timeZone: 'Asia/Shanghai',
+	year: 'numeric',
+	month: '2-digit',
+	day: '2-digit',
+});
 
 const posts = (await getCollection('blog')).sort(
 	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
@@ -22,11 +28,13 @@ const posts = (await getCollection('blog')).sort(
 						<li>
 							<a class="card archive-card" href={`/blog/${post.id}/`}>
 								<h2>{post.data.title}</h2>
-								<p>{post.data.description}</p>
-								<div class="archive-dates">
-									<span>Created on <FormattedDate date={post.data.pubDate} /></span>
-									{post.data.updatedDate && <span>Last Updated on <FormattedDate date={post.data.updatedDate} /></span>}
+								<div class="archive-date">
+									<span class="calendar-icon" aria-hidden="true">
+										<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="16" rx="2" /><path d="M8 3v4m8-4v4M4 10h16" /></svg>
+									</span>
+									<time datetime={post.data.pubDate.toISOString()}><span class="sr-only">Created on </span>{archiveDate.format(post.data.pubDate)}</time>
 								</div>
+								<p>{post.data.description}</p>
 							</a>
 						</li>
 					))}
@@ -45,6 +53,6 @@ const posts = (await getCollection('blog')).sort(
 	.archive-card:is(:hover, :focus-visible) h2 { color: var(--accent-soft); }
 	.archive-card h2 { font-size: clamp(1.1rem, 2vw, 1.4rem); overflow-wrap: anywhere; }
 	.archive-card p { margin: 0; color: var(--muted); font-size: 0.95rem; }
-	.archive-dates { display: flex; flex-wrap: wrap; gap: 0.15rem 1rem; margin-top: 0.4rem; color: var(--muted); font-size: 0.82rem; }
-	.archive-dates :global(time) { white-space: nowrap; }
+	.archive-date { display: flex; align-items: center; gap: 0.55rem; color: var(--muted); font-size: 0.875rem; font-variant-numeric: tabular-nums; }
+	.calendar-icon { display: grid; width: 1.75rem; height: 1.75rem; place-items: center; border-radius: 0.45rem; background: var(--surface-raised); color: var(--accent-soft); }
 </style>

@@ -4,18 +4,22 @@ import type { MarkdownHeading } from 'astro';
 interface Props { headings: MarkdownHeading[] }
 const { headings } = Astro.props;
 const minDepth = Math.min(...headings.map((heading) => heading.depth));
-let sectionNumber = 0;
 const ancestors: number[] = [];
 const items = headings.map((heading, index) => {
 	while (ancestors.length && headings[ancestors[ancestors.length - 1]].depth >= heading.depth) ancestors.pop();
 	const parent = ancestors[ancestors.length - 1] ?? -1;
 	ancestors.push(index);
-	return { ...heading, parent, marker: heading.depth === minDepth ? String(++sectionNumber) : '•' };
+	return { ...heading, parent };
 });
 ---
 
 <aside class="toc" aria-label="文章目录">
-	<button class="toc-toggle" type="button" aria-expanded="true" aria-controls="article-toc-links">文章目录 <span aria-hidden="true">⌄</span></button>
+	<div class="toc-heading">
+		<span>文章目录</span>
+		<button class="toc-toggle" type="button" aria-label="展开或收起文章目录" aria-expanded="true" aria-controls="article-toc-links">
+			<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
+		</button>
+	</div>
 	<nav id="article-toc-links" aria-label="文章章节">
 		<ol>
 			{items.map((heading, index) => (
@@ -24,8 +28,7 @@ const items = headings.map((heading, index) => {
 						<button class="section-toggle" type="button" aria-label={`折叠或展开：${heading.text}`} aria-expanded="true" aria-controls={items.map((item, child) => item.parent === index ? `toc-entry-${child}` : '').filter(Boolean).join(' ')}><span aria-hidden="true">⌄</span></button>
 					)}
 					<a href={`#${heading.slug}`} data-heading-id={heading.slug}>
-						<span class="marker" aria-hidden="true">{heading.marker}</span>
-						<span>{heading.text}</span>
+						{heading.text}
 					</a>
 				</li>
 			))}
@@ -34,13 +37,29 @@ const items = headings.map((heading, index) => {
 </aside>
 
 <style>
-	.toc { display: flex; flex-direction: column; gap: 0.75rem; padding: 1rem; border: 1px solid var(--line); border-radius: var(--card-radius); background: var(--surface); }
-	.toc-toggle { display: flex; justify-content: space-between; width: 100%; padding: 0; border: 0; background: none; color: var(--text); font: inherit; font-size: 0.9rem; cursor: pointer; }
-	.toc-toggle span { transform: rotate(-90deg); }
-	.toc-toggle[aria-expanded="true"] span { transform: none; }
-	.toc-toggle { flex: none; }
-	nav { display: none; max-height: min(60vh, 32rem); overflow-y: auto; overscroll-behavior: contain; }
-	.toc-toggle[aria-expanded="true"] + nav { display: block; }
+	.toc { display: flex; flex-direction: column; gap: 0.75rem; padding-block: 1rem; }
+	.toc-heading { display: flex; flex: none; align-items: center; gap: 0.5rem; color: var(--text); font-size: 0.9rem; font-weight: 600; }
+	.toc-toggle {
+		display: grid;
+		width: 2rem;
+		height: 2rem;
+		place-items: center;
+		padding: 0;
+		border: 1px solid var(--line);
+		border-radius: 0.7rem;
+		background: linear-gradient(180deg, var(--surface-raised), color-mix(in srgb, var(--accent) 14%, var(--surface)));
+		box-shadow: 0 2px 4px color-mix(in srgb, var(--accent) 16%, transparent);
+		color: var(--accent-soft);
+		cursor: pointer;
+		transition: transform 180ms cubic-bezier(.2,.7,.4,1.5), border-color 150ms ease;
+	}
+	.toc-toggle:hover { border-color: var(--accent); }
+	.toc-toggle:active { transform: scale(0.88); }
+	.toc-toggle:focus-visible { outline: 2px solid var(--accent-soft); outline-offset: 3px; }
+	.toc-toggle svg { transition: transform 180ms ease; }
+	.toc-toggle[aria-expanded="false"] svg { transform: rotate(-90deg); }
+	nav { display: none; max-height: min(60vh, 32rem); overflow-y: auto; overscroll-behavior: contain; scrollbar-color: color-mix(in srgb, var(--muted) 40%, transparent) transparent; }
+	.toc-heading:has(.toc-toggle[aria-expanded="true"]) + nav { display: block; }
 	ol { list-style: none; margin: 0; padding: 0; }
 	li { position: relative; margin: 0.2rem 0; padding-inline-start: calc(0.55rem + var(--depth) * 0.75rem); }
 	li::before { position: absolute; inset-block: 0.1rem; inset-inline-start: 0; width: 3px; border-radius: 999px; background: var(--line); pointer-events: none; content: ''; }
@@ -51,15 +70,18 @@ const items = headings.map((heading, index) => {
 	.section-toggle { position: absolute; right: 0; top: 0.25rem; display: grid; place-items: center; width: 1.75rem; height: 1.75rem; border: 0; border-radius: 0.5rem; background: none; color: var(--muted); font: inherit; cursor: pointer; }
 	.section-toggle:hover { background: var(--surface-raised); color: var(--text); }
 	.section-toggle[aria-expanded="false"] span { transform: rotate(-90deg); }
-	a { display: flex; align-items: baseline; gap: 0.5rem; padding: 0.5rem; border-radius: 0.5rem; color: var(--muted); font-size: 0.875rem; line-height: 1.5; text-decoration: none; overflow-wrap: anywhere; }
+	a { display: block; padding: 0.5rem; border-radius: 0.5rem; color: var(--muted); font-size: 0.875rem; line-height: 1.5; text-decoration: none; overflow-wrap: anywhere; }
 	li:has(> .section-toggle) > a { padding-right: 1.75rem; }
-	.marker { flex: 0 0 1.25rem; text-align: center; color: var(--accent-soft); font-size: 0.8rem; }
 	a:hover { color: var(--text); }
 	a[aria-current="location"] { color: var(--accent-soft); background: color-mix(in srgb, var(--accent) 12%, transparent); }
 	@media (min-width: 960px) {
-		.toc { position: sticky; top: 92px; max-height: calc(100dvh - 108px); }
-		.toc-toggle { font-weight: 600; font-size: 1.05rem; }
+		.toc { min-height: 0; padding-block: 0; }
+		.toc-heading { font-size: 1.05rem; }
 		nav { min-height: 0; max-height: none; scrollbar-width: thin; }
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.toc-toggle, .toc-toggle svg { transition: none; }
+		.toc-toggle:active { transform: none; }
 	}
 </style>
 
@@ -68,9 +90,9 @@ const items = headings.map((heading, index) => {
 	const toc = document.querySelector<HTMLElement>('.toc');
 	if (!toc) return;
 	const listeners = new AbortController();
-	const toggle = toc.querySelector<HTMLButtonElement>('button')!;
+	const toggle = toc.querySelector<HTMLButtonElement>('.toc-toggle')!;
 	const nav = toc.querySelector<HTMLElement>('nav')!;
-	const article = toc.parentElement!.querySelector('article')!;
+	const article = toc.closest('main')!.querySelector('article')!;
 	const links = Array.from(toc.querySelectorAll<HTMLAnchorElement>('a[data-heading-id]'));
 	const headings = links.map((link) => document.getElementById(link.dataset.headingId!)!);
 	const entries = Array.from(nav.querySelectorAll<HTMLLIElement>('li'));
