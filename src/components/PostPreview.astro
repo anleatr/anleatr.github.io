@@ -1,0 +1,39 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+	post: CollectionEntry<'blog'>;
+	heading?: 'h2' | 'h3';
+	class?: string;
+}
+
+const { post, heading: Heading = 'h2', class: className } = Astro.props;
+const { title, description, pubDate } = post.data;
+const dateFormat = new Intl.DateTimeFormat('sv-SE', {
+	timeZone: 'Asia/Shanghai',
+	year: 'numeric',
+	month: '2-digit',
+	day: '2-digit',
+});
+---
+
+<a class:list={['post-preview', className]} href={`/blog/${post.id}/`}>
+	<Heading class="title">{title}</Heading>
+	<div class="post-date">
+		<span class="calendar-icon" aria-hidden="true">
+			<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="16" rx="2" /><path d="M8 3v4m8-4v4M4 10h16" /></svg>
+		</span>
+		<time datetime={pubDate.toISOString()}><span class="sr-only">Created on </span>{dateFormat.format(pubDate)}</time>
+	</div>
+	<p>{description}</p>
+</a>
+
+<style>
+	.post-preview { display: grid; gap: 0.4rem; color: var(--text); text-decoration: none; }
+	.post-preview.card:is(:hover, :focus-visible) { border-color: var(--accent); }
+	.post-preview:is(:hover, :focus-visible) .title { color: var(--accent-soft); }
+	.title { font-size: clamp(1.1rem, 2vw, 1.4rem); overflow-wrap: anywhere; }
+	p { margin: 0; color: var(--muted); font-size: 0.95rem; }
+	.post-date { display: flex; align-items: center; gap: 0.55rem; color: var(--muted); font-size: 0.875rem; font-variant-numeric: tabular-nums; }
+	.calendar-icon { display: grid; width: 1.75rem; height: 1.75rem; place-items: center; border-radius: 0.45rem; background: var(--surface-raised); color: var(--accent-soft); }
+</style>

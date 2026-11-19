@@ -4,8 +4,8 @@ import { getCollection } from 'astro:content';
 import Avatar from '../assets/avatar.jpg';
 import BaseHead from '../components/BaseHead.astro';
 import ContributionCalendar from '../components/ContributionCalendar.astro';
-import FormattedDate from '../components/FormattedDate.astro';
 import Header from '../components/Header.astro';
+import PostPreview from '../components/PostPreview.astro';
 import { GITHUB_URL, SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 
 const greeting = "Hi, I'm Asera";
@@ -51,14 +51,9 @@ const posts = (await getCollection('blog'))
 						<h2 id="home-latest">Latest Writing</h2>
 						<a class="text-link" href="/blog">All Writing →</a>
 					</div>
-					<ul class="post-list">
+					<ul class="post-list latest-list">
 						{posts.map((post) => (
-							<li class="post-item">
-								<a href={`/blog/${post.id}/`}>
-									<div><h3>{post.data.title}</h3><p>{post.data.description}</p></div>
-									<FormattedDate date={post.data.pubDate} />
-								</a>
-							</li>
+							<li><PostPreview post={post} heading="h3" /></li>
 						))}
 					</ul>
 				</section>
@@ -100,4 +95,6 @@ const posts = (await getCollection('blog'))
 	.contact:hover { border-color: var(--accent); }
 	.home-content { display: grid; gap: var(--layout-gap); }
 	.home-about p { margin: 0; color: var(--muted); }
+	.latest-list > li + li { border-top: 1px solid var(--line); }
+	.latest-list :global(.post-preview) { padding-block: 0.85rem; }
 </style>
