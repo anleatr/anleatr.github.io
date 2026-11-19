@@ -1,15 +1,12 @@
 ---
-import snapshot from '../github-contributions.json';
+import { getGitHubContributions } from '../github-contributions';
 
-const start = new Date(snapshot.start);
-const offset = start.getUTCDay();
-const weekCount = Math.ceil((offset + snapshot.days.length) / 7);
+const dates = await getGitHubContributions();
+const firstDate = dates[0].date;
+const lastDate = dates[dates.length - 1].date;
+const offset = firstDate.getUTCDay();
+const weekCount = Math.ceil((offset + dates.length) / 7);
 const monthFormat = new Intl.DateTimeFormat('en', { month: 'short', timeZone: 'UTC' });
-const dates = snapshot.days.map(([count, level], index) => ({
-	date: new Date(start.valueOf() + 86_400_000 * index),
-	count,
-	level,
-}));
 const monthStarts = dates.flatMap(({ date }, index) => index === 0 || date.getUTCDate() === 1 ? [{
 	label: monthFormat.format(date),
 	column: Math.floor((offset + index) / 7) + 1,
@@ -27,7 +24,7 @@ const total = dates.reduce((sum, { count }) => sum + count, 0);
 			<div class="months" aria-hidden="true">
 				{months.map(({ label, column }) => <span style={`grid-column: ${column}`}>{label}</span>)}
 			</div>
-			<div class="days" role="img" aria-label={`Daily contributions, ${snapshot.start} to ${snapshot.through}.`}>
+			<div class="days" role="img" aria-label={`Daily contributions, ${firstDate.toISOString().slice(0, 10)} to ${lastDate.toISOString().slice(0, 10)}.`}>
 				{Array.from({ length: offset }, () => <span></span>)}
 				{dates.map(({ date, count, level }) => (
 					<span class="square" data-level={level} title={`${date.toISOString().slice(0, 10)} · ${count} ${count === 1 ? 'contribution' : 'contributions'}`}></span>
