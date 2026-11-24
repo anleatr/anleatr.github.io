@@ -13,8 +13,13 @@
     "@astrojs/rss": "^4.0.15",
     "@astrojs/sitemap": "^3.7.0",
     "astro": "^5.16.15",
+    "katex": "^0.16.47",
     "medium-zoom": "1.1.0",
     "parse5": "7.3.0",
-    "sharp": "^0.34.3"
+    "rehype-katex": "^7.0.1",
+    "remark-mark-highlight": "^0.1.1",
+    "remark-math": "^6.0.0",
+    "sharp": "^0.34.3",
+    "unist-util-visit": "^5.2.0"
   }
 }
