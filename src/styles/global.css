@@ -129,10 +129,18 @@ p { margin: 0 0 1rem; }
 .prose pre code { padding: 0; background: none; }
 .prose blockquote { margin: 2rem 0; padding-left: 1.25rem; border-left: 2px solid var(--accent); color: var(--muted); }
 .prose mark { background: var(--highlight); color: var(--text); }
+.prose mark[data-highlight] { background-color: color-mix(in oklch, var(--highlight-ink) 30%, transparent); }
+.prose mark[data-highlight="red"] { --highlight-ink: light-dark(#e93147, #fb464c); }
+.prose mark[data-highlight="orange"] { --highlight-ink: light-dark(#ec7500, #e9973f); }
+.prose mark[data-highlight="yellow"] { --highlight-ink: light-dark(#e0ac00, #e0de71); }
+.prose mark[data-highlight="green"] { --highlight-ink: light-dark(#08b94e, #44cf6e); }
+.prose mark[data-highlight="blue"] { --highlight-ink: light-dark(#086ddd, #027aff); }
+.prose mark[data-highlight="purple"] { --highlight-ink: light-dark(#7852ee, #a882ff); }
 .prose .katex-display { max-width: 100%; overflow-x: auto; padding-block: 0.2em; }
 .prose .katex-display > .katex { min-width: max-content; }
 .prose img { margin: 1rem 0; border-radius: 0.8rem; }
 .prose li img { margin-block: 0.75rem; }
+.prose [data-asera-image-grid] + [data-asera-image-grid] { margin-block-start: 12px; }
 .prose img[src*="img.shields.io"] { display: inline-block; width: auto; margin: 0 0.35rem 0.35rem 0; border-radius: 0; vertical-align: middle; }
 .prose hr { margin: 3rem 0; border: 0; border-top: 1px solid var(--line); }
 .sr-only {

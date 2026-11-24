@@ -21,13 +21,35 @@ const rehypeImageWidth = () => (tree) => {
 	});
 };
 
+const highlightColors = new Map([
+	['🔴', 'red'], ['🟥', 'red'],
+	['🟠', 'orange'], ['🟧', 'orange'],
+	['🟡', 'yellow'], ['🟨', 'yellow'],
+	['🟢', 'green'], ['🟩', 'green'],
+	['🔵', 'blue'], ['🟦', 'blue'],
+	['🟣', 'purple'], ['🟪', 'purple'],
+]);
+
+/** @type {import('unified').Plugin<[], import('hast').Root>} */
+const rehypeHighlightColor = () => (tree) => {
+	visit(tree, 'element', (node) => {
+		const first = node.children[0];
+		if (node.tagName !== 'mark' || first?.type !== 'text') return;
+		const [marker] = first.value;
+		const color = highlightColors.get(marker);
+		if (!color) return;
+		node.properties.dataHighlight = color;
+		first.value = first.value.slice(marker.length);
+	});
+};
+
 // https://astro.build/config
 export default defineConfig({
 	site: 'https://anleatr.github.io',
 	prefetch: { prefetchAll: true, defaultStrategy: 'hover' },
 	markdown: {
 		remarkPlugins: [remarkMath, remarkMark],
-		rehypePlugins: [rehypeImageWidth, rehypeKatex],
+		rehypePlugins: [rehypeImageWidth, rehypeHighlightColor, rehypeKatex],
 	},
 	integrations: [mdx(), sitemap()],
 });
