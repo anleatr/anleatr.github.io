@@ -10,7 +10,7 @@ const values = await new Promise((resolve) => {
 			const form = this.contentEl.createEl("form");
 			form.style.cssText = "display:grid;gap:16px";
 			const fields = [
-				["title", "论文标题", "", true],
+				["shortName", "方法简称", "例如 OmniNWM", true],
 				["arxivInput", "arXiv ID 或完整 URL", "2606.16993 或 https://arxiv.org/abs/2606.16993", true],
 				["project", "项目主页（可留空）", "https://…", false],
 				["repoInput", "GitHub 仓库名或完整 URL（可留空）", "AMAP-ML/DreamX-World 或 https://github.com/…", false],
@@ -47,7 +47,7 @@ const values = await new Promise((resolve) => {
 	new PaperEntryModal().open();
 });
 if (values === null) return;
-const { title, arxivInput, project, repoInput } = values;
+const { shortName, arxivInput, project, repoInput } = values;
 
 const arxiv = arxivInput
 	.trim()
@@ -68,7 +68,10 @@ const badges = [
 		: "",
 ].filter(Boolean).join(" ");
 
-tR += `## ${title}
+const html = (value) => value.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
+tR += `
+
+<a class="paper-title" href="https://arxiv.org/abs/${html(arxiv)}"><strong>${html(shortName)}</strong></a>
 
 ${badges}
 

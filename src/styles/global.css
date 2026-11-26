@@ -124,6 +124,9 @@ p { margin: 0 0 1rem; }
 .prose p, .prose li { overflow-wrap: anywhere; }
 .prose table { display: block; overflow-x: auto; max-width: 100%; }
 .prose a { color: var(--accent-soft); text-underline-offset: 0.2em; }
+.prose p:has(> .paper-title) { margin-block: 1.4rem 0.3rem; line-height: 1.6; }
+.prose p:has(> .paper-title) + p:has(> a > img[src*="img.shields.io"]) { margin-block-start: 0; }
+.prose .paper-title { scroll-margin-top: 140px; }
 .prose code { padding: 0.15rem 0.35rem; border-radius: 0.3rem; background: var(--surface-raised); }
 .prose pre { overflow-x: auto; padding: 1.25rem; border: 1px solid var(--line); border-radius: 0.8rem; background: #070a11; color: #edf1f7; }
 .prose pre code { padding: 0; background: none; }
