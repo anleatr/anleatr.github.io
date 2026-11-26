@@ -3,7 +3,7 @@ title: 相机可控的Image2Video方法
 description: 梳理近期读到的camera control I2V方法，面向驾驶世界模型
 imageFolder: camera-controlled-image-to-video
 pubDate: 2026-11-15T12:16+08:00
-updatedDate: 2026-11-26T13:50+08:00
+updatedDate: 2026-11-26T14:55+08:00
 ---
 首先定义我们的任务：
 
@@ -35,7 +35,7 @@ updatedDate: 2026-11-26T13:50+08:00
 [![arXiv](https://img.shields.io/badge/arXiv-2510.18313-b31b1b?style=flat-square)](https://arxiv.org/abs/2510.18313) [![Project](https://img.shields.io/badge/Website-Project_Page-2774ae?style=flat-square)](https://arlo0o.github.io/OmniNWM/) [![Code](https://img.shields.io/github/stars/Ma-Zhuang/OmniNWM?style=flat-square&logo=github&label=Code&color=181717)](https://github.com/Ma-Zhuang/OmniNWM)
 
 用归一化Plucker参数缓解几何协变量偏移
-# 间接监督方法
+# 条件注入(相机条件如何进入生成过程)
 
 <a class="paper-title" id="motionctrl-a-unified-and-flexible-motion-controller-for-video-generation" href="https://arxiv.org/abs/2312.03641"><strong>MotionCtrl</strong></a>
 
@@ -76,23 +76,42 @@ updatedDate: 2026-11-26T13:50+08:00
 $$
 \mathcal{L} = \mathbb{E}_{z_0,t,\epsilon}\left[\left\|\epsilon-\epsilon_\theta\left(z_t,t,c_{\mathrm{img}},c_{\mathrm{txt}},c_{\mathrm{cam}}\right)\right\|_2^2\right]
 $$
+# 一致性监督
+## 间接监督
 
 <a class="paper-title" id="campilot-improving-camera-control-in-video-diffusion-model-with-efficient-camera-reward-feedback" href="https://arxiv.org/abs/2601.16214"><strong>CamPilot</strong></a>
 
 [![arXiv](https://img.shields.io/badge/arXiv-2601.16214-b31b1b?style=flat-square)](https://arxiv.org/abs/2601.16214) [![Project](https://img.shields.io/badge/Website-Project_Page-2774ae?style=flat-square)](https://a-bigbao.github.io/CamPilot/)
 
+**可见区域渲染监督**
+
 如何训练相机控制的？
 在模型生成的视频潜变量后面，接一个3D解码器，结合相机位姿输出3DGS，以及对应轨迹的渲染视图，
 
-![](https://img.asera.top/blog/camera-controlled-image-to-video/20261118-9b079ea0b990485a9e7a3636e61505e3.png)
+![503](https://img.asera.top/blog/camera-controlled-image-to-video/20261118-9b079ea0b990485a9e7a3636e61505e3.png)
 
 > 不清楚，视频latent直接解码为视频，和3D解码器解码的视频，有什么不同？除了论文中提到的解码速度快
+
+<a class="paper-title" id="trimotion-modality-agnostic-camera-control-for-video-generationeccv-2026" href="https://arxiv.org/abs/2606.20774"><strong>TriMotion</strong></a>（ECCV 2026）
+
+[![arXiv](https://img.shields.io/badge/arXiv-2606.20774-b31b1b?style=flat-square)](https://arxiv.org/abs/2606.20774) [![Project](https://img.shields.io/badge/Website-Project_Page-2774ae?style=flat-square)](https://seunghyuns98.github.io/TriMotion/) [![Code](https://img.shields.io/github/stars/seunghyuns98/TriMotion?style=flat-square&logo=github&label=Code&color=181717)](https://github.com/seunghyuns98/TriMotion)
+
+**潜空间运动表征对齐**
+
+![499](https://img.asera.top/blog/camera-controlled-image-to-video/20261118-7adc206623bd40c3ab6d6f81dfe1012a.png)
+
+首先训练出一个轨迹预测器，能够从视频潜变量中编码运动嵌入$e_m$ , 用该嵌入和统一运动空间中的运动嵌入做监督，同时监督运动轨迹和生成质量
+> 好奇：运动空间的嵌入有什么物理意义吗，又如何精确引导相机轨迹？
+## 直接监督
 
 <a class="paper-title" id="posepilot-steering-camera-pose-for-generative-world-models-with-self-supervised-depthiros-2025" href="https://arxiv.org/abs/2505.01729"><strong>PosePilot</strong></a>（IROS 2025）
 
 [![arXiv](https://img.shields.io/badge/arXiv-2505.01729-b31b1b?style=flat-square)](https://arxiv.org/abs/2505.01729)
 
-创新是“几何读出模块＋三个辅助损失”这一整套训练机制。 PosePilot（Jin 等, 2025）保留原世界模型的生成目标，再加入深度、运动估计及相应监督，使生成过程受到几何约束，从而改善相机位姿控制。
+**位姿回归与双向重投影监督**
+
+创新是“几何读出模块＋三个辅助损失”这一整套训练机制。但是位姿是从解码的RGB视频中读出的
+
 引入三项损失: 
 
 $$
@@ -100,14 +119,7 @@ L_{total} = L_g + \alpha_p L_p + \alpha_{p^{inv}} L_p^{inv}  + \alpha_{mse}L_{MS
 $$
 
 
-<a class="paper-title" id="trimotion-modality-agnostic-camera-control-for-video-generationeccv-2026" href="https://arxiv.org/abs/2606.20774"><strong>TriMotion</strong></a>（ECCV 2026）
-
-[![arXiv](https://img.shields.io/badge/arXiv-2606.20774-b31b1b?style=flat-square)](https://arxiv.org/abs/2606.20774) [![Project](https://img.shields.io/badge/Website-Project_Page-2774ae?style=flat-square)](https://seunghyuns98.github.io/TriMotion/) [![Code](https://img.shields.io/github/stars/seunghyuns98/TriMotion?style=flat-square&logo=github&label=Code&color=181717)](https://github.com/seunghyuns98/TriMotion)
-
-![](https://img.asera.top/blog/camera-controlled-image-to-video/20261118-7adc206623bd40c3ab6d6f81dfe1012a.png)
-
-首先训练出一个轨迹预测器，能够从视频潜变量中编码运动嵌入$e_m$ , 用该嵌入和统一运动空间中的运动嵌入做监督，同时监督运动轨迹和生成质量
-> 好奇：运动空间的嵌入有什么物理意义吗，又如何精确引导相机轨迹？
+CamVerse
 
 # Training-Free方法
 
