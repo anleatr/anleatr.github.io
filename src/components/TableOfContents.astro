@@ -13,14 +13,19 @@ const items = headings.map((heading, index) => {
 });
 ---
 
-<aside class="toc" aria-label="文章目录">
+<aside class="toc" aria-label={items.length ? '目录' : '文章导航'}>
 	<div class="toc-heading">
-		<span>文章目录</span>
-		<button class="toc-toggle" type="button" aria-label="展开或收起文章目录" aria-expanded="true" aria-controls="article-toc-links">
-			<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
-		</button>
+		<a class="toc-back" href="/blog" aria-label="返回博客列表" title="返回博客列表">
+			<svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m11 4-8 8 8 8m10-16-8 8 8 8" /></svg>
+		</a>
+		{items.length > 0 && <>
+			<span>目录</span>
+			<button class="toc-toggle" type="button" aria-label="展开或收起目录" title="展开或收起目录" aria-expanded="true" aria-controls="article-toc-links">
+				<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
+			</button>
+		</>}
 	</div>
-	<nav id="article-toc-links" aria-label="文章章节">
+	{items.length > 0 && <nav id="article-toc-links" aria-label="文章章节">
 		<ol>
 			{items.map((heading, index) => (
 				<li id={`toc-entry-${index}`} data-parent={heading.parent} style={`--depth: ${heading.depth - minDepth}`}>
@@ -33,29 +38,20 @@ const items = headings.map((heading, index) => {
 				</li>
 			))}
 		</ol>
-	</nav>
+	</nav>}
 </aside>
 
 <style>
 	.toc { display: flex; flex-direction: column; gap: 0.75rem; padding-block: 1rem; }
-	.toc-heading { display: flex; flex: none; align-items: center; gap: 0.5rem; color: var(--text); font-size: 0.9rem; font-weight: 600; }
-	.toc-toggle {
-		display: grid;
-		width: 2rem;
-		height: 2rem;
-		place-items: center;
-		padding: 0;
-		border: 1px solid var(--line);
-		border-radius: 0.7rem;
-		background: linear-gradient(180deg, var(--surface-raised), color-mix(in srgb, var(--accent) 14%, var(--surface)));
-		box-shadow: 0 2px 4px color-mix(in srgb, var(--accent) 16%, transparent);
-		color: var(--accent-soft);
-		cursor: pointer;
-		transition: transform 180ms cubic-bezier(.2,.7,.4,1.5), border-color 150ms ease;
+	.toc-heading { display: grid; flex: none; grid-template-columns: max-content max-content; align-items: center; gap: 0.25rem; min-height: 2rem; color: var(--text); font-size: 0.9rem; font-weight: 600; }
+	.toc-back { grid-column: 1 / -1; justify-self: start; }
+	.toc-toggle, .toc-back {
+		display: inline-grid; place-items: center; width: 2rem; height: 2rem;
+		padding: 0; border: 0; background: none; color: var(--muted); cursor: pointer;
+		text-decoration: none;
 	}
-	.toc-toggle:hover { border-color: var(--accent); }
-	.toc-toggle:active { transform: scale(0.88); }
-	.toc-toggle:focus-visible { outline: 2px solid var(--accent-soft); outline-offset: 3px; }
+	.toc-toggle:hover, .toc-back:hover { color: var(--text); }
+	.toc-toggle:focus-visible, .toc-back:focus-visible { outline: 2px solid var(--accent-soft); outline-offset: 2px; }
 	.toc-toggle svg { transition: transform 180ms ease; }
 	.toc-toggle[aria-expanded="false"] svg { transform: rotate(-90deg); }
 	nav { display: none; max-height: min(60vh, 32rem); overflow-y: auto; overscroll-behavior: contain; scrollbar-color: color-mix(in srgb, var(--muted) 40%, transparent) transparent; }
@@ -70,18 +66,24 @@ const items = headings.map((heading, index) => {
 	.section-toggle { position: absolute; right: 0; top: 0.25rem; display: grid; place-items: center; width: 1.75rem; height: 1.75rem; border: 0; border-radius: 0.5rem; background: none; color: var(--muted); font: inherit; cursor: pointer; }
 	.section-toggle:hover { background: var(--surface-raised); color: var(--text); }
 	.section-toggle[aria-expanded="false"] span { transform: rotate(-90deg); }
-	a { display: block; padding: 0.5rem; border-radius: 0.5rem; color: var(--muted); font-size: 0.875rem; line-height: 1.5; text-decoration: none; overflow-wrap: anywhere; }
+	nav a { display: block; padding: 0.5rem; border-radius: 0.5rem; color: var(--muted); font-size: 0.875rem; line-height: 1.5; text-decoration: none; overflow-wrap: anywhere; }
 	li:has(> .section-toggle) > a { padding-right: 1.75rem; }
 	a:hover { color: var(--text); }
 	a[aria-current="location"] { color: var(--accent-soft); background: color-mix(in srgb, var(--accent) 12%, transparent); }
-	@media (min-width: 960px) {
+	@media (min-width: 72rem) {
 		.toc { min-height: 0; padding-block: 0; }
 		.toc-heading { font-size: 1.05rem; }
 		nav { min-height: 0; max-height: none; scrollbar-width: thin; }
 	}
+	@media (width < 72rem) {
+		.toc-heading.is-above-viewport .toc-back {
+			position: fixed; z-index: 15;
+			inset-inline-start: max(1rem, env(safe-area-inset-left));
+			bottom: calc(0.75rem + env(safe-area-inset-bottom));
+		}
+	}
 	@media (prefers-reduced-motion: reduce) {
-		.toc-toggle, .toc-toggle svg { transition: none; }
-		.toc-toggle:active { transform: none; }
+		.toc-toggle svg { transition: none; }
 	}
 </style>
 
@@ -89,8 +91,19 @@ const items = headings.map((heading, index) => {
 	document.addEventListener('astro:page-load', () => {
 	const toc = document.querySelector<HTMLElement>('.toc');
 	if (!toc) return;
+	const headingRow = toc.querySelector<HTMLElement>('.toc-heading')!;
+	const headingObserver = new IntersectionObserver(([entry]) => {
+		headingRow.classList.toggle('is-above-viewport', entry.boundingClientRect.bottom <= 0);
+	});
+	headingObserver.observe(headingRow);
+	document.addEventListener('astro:before-swap', () => headingObserver.disconnect(), { once: true });
+	const toggle = toc.querySelector<HTMLButtonElement>('.toc-toggle');
+	if (!toggle) return;
 	const listeners = new AbortController();
-	const toggle = toc.querySelector<HTMLButtonElement>('.toc-toggle')!;
+	const wideLayout = window.matchMedia('(min-width: 72rem)');
+	const setInitialExpansion = () => toggle.setAttribute('aria-expanded', String(wideLayout.matches));
+	setInitialExpansion();
+	wideLayout.addEventListener('change', setInitialExpansion, { signal: listeners.signal });
 	const nav = toc.querySelector<HTMLElement>('nav')!;
 	const article = toc.closest('main')!.querySelector('article')!;
 	const links = Array.from(toc.querySelectorAll<HTMLAnchorElement>('a[data-heading-id]'));

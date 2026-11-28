@@ -15,13 +15,9 @@ const { title, description, pubDate, updatedDate, headings } = Astro.props;
 	<head><BaseHead title={`${title} · Asera`} description={description} /></head>
 	<body>
 		<Header />
-		<main class="shell page-grid article-grid">
+		<main class="article-grid">
 			<div class="reading-tools">
-				<a class="back" href="/blog">
-					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5m7 7-7-7 7-7" /></svg>
-					Back to Blog
-				</a>
-				{headings.length > 0 && <TableOfContents headings={headings} />}
+				<TableOfContents headings={headings} />
 			</div>
 			<article class="card article">
 				<header class="article-header">
@@ -67,26 +63,19 @@ const { title, description, pubDate, updatedDate, headings } = Astro.props;
 </script>
 
 <style>
-	.article-grid { grid-template-columns: minmax(0, 1fr); }
+	.article-grid {
+		--article-width: 51rem;
+		display: grid;
+		grid-template-columns: minmax(0, 1fr);
+		align-items: start;
+		gap: var(--layout-gap);
+		width: min(var(--article-width), calc(100% - 2rem));
+		margin-inline: auto;
+		padding-block: 1rem 2rem;
+	}
+	.article { min-width: 0; }
 	.article-header, .prose { max-width: 47rem; margin-inline: auto; }
 	.article-header { margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--line); }
-	.back {
-		display: inline-flex;
-		align-items: center;
-		gap: 0.45rem;
-		min-height: 2.75rem;
-		padding-inline: 0.85rem;
-		border: 1px solid var(--line);
-		border-radius: 999px;
-		background: color-mix(in srgb, var(--surface-raised) 88%, transparent);
-		backdrop-filter: blur(12px);
-		box-shadow: 0 2px 8px color-mix(in srgb, var(--text) 8%, transparent);
-		color: var(--accent-soft);
-		font-size: 0.85rem;
-		font-weight: 600;
-		text-decoration: none;
-	}
-	.back:hover { border-color: var(--accent); }
 	.article-header h1 { font-size: clamp(1.6rem, 2.5vw, 2.25rem); letter-spacing: -0.025em; overflow-wrap: anywhere; }
 	.description { margin: 0.75rem 0 0; color: var(--muted); font-size: 1rem; }
 	.date { margin-top: 0.75rem; color: var(--muted); font-size: 0.82rem; }
@@ -95,15 +84,29 @@ const { title, description, pubDate, updatedDate, headings } = Astro.props;
 	.prose :global(.medium-zoom-image:focus-visible) { outline: 2px solid var(--accent-soft); outline-offset: 4px; }
 	:global(.medium-zoom-overlay) { z-index: 40; }
 	:global(.medium-zoom-image--opened) { z-index: 41; }
-	@media (min-width: 960px) {
-		.article-grid { grid-template-columns: var(--sidebar-width) minmax(0, 1fr); }
-		.reading-tools { position: sticky; top: 92px; display: flex; flex-direction: column; align-items: flex-start; gap: 1rem; max-height: calc(100dvh - 108px); }
-		.reading-tools :global(.toc) { align-self: stretch; }
-		.back { flex: none; }
+	@media (min-width: 72rem) {
+		.article-grid {
+			--sidebar-width: 258px;
+			width: auto;
+			margin-inline: clamp(1rem, 2vw, 3rem);
+			column-gap: clamp(2rem, 4vw, 5rem);
+			grid-template-columns: minmax(var(--sidebar-width), 1fr) minmax(0, var(--article-width)) minmax(var(--sidebar-width), 1fr);
+		}
+		.article { grid-column: 2; grid-row: 1; }
+		.reading-tools {
+			grid-column: 1;
+			grid-row: 1;
+			position: sticky;
+			top: 92px;
+			display: flex;
+			flex-direction: column;
+			width: 100%;
+			max-width: var(--sidebar-width);
+			max-height: calc(100dvh - 108px);
+		}
 	}
-	@media (width < 960px) {
+	@media (width < 72rem) {
 		.article-grid { padding-bottom: calc(5rem + env(safe-area-inset-bottom)); }
 		.reading-tools { display: contents; }
-		.back { position: fixed; z-index: 15; inset-inline-start: max(1rem, env(safe-area-inset-left)); bottom: calc(0.75rem + env(safe-area-inset-bottom)); }
 	}
 </style>
